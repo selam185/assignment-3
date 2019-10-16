@@ -28,12 +28,20 @@ async def client():
             writer.close()
             break
 
+        if command == "commands":
+            # if check for options
+            #   handle options
+            # if no option:
+            print("<list of all available commands>")
+            continue
+
+
         print(f'Send: {command!r}')
         writer.write(command.encode())
 
-    # response from server
-    data = await reader.read(100)
-    print(f'Received: {data.decode()!r}')
+        # response from server
+        data = await reader.read(100)
+        print(f'Received: {data.decode()!r}')
 
 
 asyncio.run(client())
