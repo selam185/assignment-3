@@ -40,7 +40,7 @@ async def client():
         writer.write(command.encode())
 
         # response from server
-        data = await reader.read(100)
+        data = await reader.read(10000)
         print(f'Received: {data.decode()!r}')
 
 
