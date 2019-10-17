@@ -42,15 +42,16 @@ def llist():
 
     return return_string
 
-def createDir():
+def createDir(dir_name):
 
-    dir_name = input("Enter the directory name \n")
     try:
-        dir_c = os.mkdir(dir_name)
-        name = "Directory " + dir_name + " created"
+        os.mkdir(dir_name)
+        result = "Directory " + dir_name + " created"
+        print(result)
     except FileExistsError:
-        print("Directory", dir_name, "already exists")
-    return name
+        result = "Directory " + dir_name + " already exists"
+        print(result)
+    return result
 
 def changeDir():
      
@@ -99,6 +100,8 @@ async def handle_commands(reader, writer):
     addr = writer.get_extra_info('peername') 
     print(f"Received {message!r} from {addr!r}")
 
+    split_message = message.split(' ')
+
     if message == 'list':
         llist()
         writer.write(llist().encode())
@@ -119,10 +122,14 @@ async def handle_commands(reader, writer):
         writer.write(changeDir().encode())
         await writer.drain()
 
-    if message == 'create directory ':
-        #createDir()
-        writer.write(createDir().encode())
+    if split_message[0] == 'create' and split_message[1] == 'directory':
+        writer.write(createDir(split_message[2]).encode())
         await writer.drain()
+
+    # if message == 'create directory ':
+    #     #createDir()
+    #     writer.write(createDir().encode())
+    #     await writer.drain()
 
     
     # print(f"Send: {message!r}")
