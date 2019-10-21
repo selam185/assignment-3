@@ -142,12 +142,12 @@ async def handle_commands(reader, writer):
 
     split_message = message.split(' ')
 
-    if split_message[0] == 'regist':
+    if split_message[0] == 'register':
         #register(split_message[1], split_message[2])
         writer.write(register(split_message[1], split_message[2]).encode())
         await writer.drain()
 
-    if split_message[0] == 'log':
+    if split_message[0] == 'login':
         #login(split_message[1], split_message[2])
         writer.write(login(split_message[1], split_message[2]).encode())
         await writer.drain()
