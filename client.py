@@ -1,4 +1,8 @@
 import asyncio
+import signal
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 
 # async def tcp_echo_client(message):
 #     reader, writer = await asyncio.open_connection(
@@ -21,6 +25,9 @@ async def client():
         command = input('Client waiting\n')
 
         if command == 'quit':
+            # logout from server
+            # send message to logout the user corresponding to this client
+
             print('Close the connection')
             writer.close
             break

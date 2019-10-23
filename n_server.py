@@ -3,8 +3,11 @@ import os
 import time
 import signal
 import pickle
+from collections import namedtuple
 
 signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+User = namedtuple('User', 'username password privileges')
 
 
 
@@ -85,26 +88,26 @@ def readfile(name):
         print("Request denied")
         return "Request denied"
 
-def register(username, password):
+def register(username, password, privileges):
+    if (not privileges == "admin") or (not privileges == "user"):
+        return "Privileges must be either 'user' or 'admin'."
     try:
         with open('reg.pickle', 'rb') as f:
-            users = pickle.load(f)
-            userlist = users      
+            userlist = pickle.load(f)
     except:
-        users = None
-        userlist = {}
+        userlist = []
+
+    new_user = User(username, password, privileges)
 
     
-    if username not in userlist.keys():
-        userlist[username] = password
-        pickle.dump( userlist, open( "reg.pickle", "wb" ) )
-        #user = pickle.load( open( "reg.pickle", "rb" ) )
+    if new_user.username not in [User.username for User in userlist]:
+        userlist.append(new_user)
+        pickle.dump(userlist, open("reg.pickle", "wb"))
         print("Register successfully")
-        result = username + " registered Sucessfully"
         os.mkdir(username)
         result = "User registered Sucessfully and Directory " + username + " created"
         return result
-    
+
     else:  
         print("the username is already exits. Please enter valid")
         return "Username already exists" 
@@ -113,23 +116,24 @@ def register(username, password):
 def login(username, password):
     try:
         with open('reg.pickle', 'rb') as f:
-            users = pickle.load(f)
-            userlist = users
+            userlist = pickle.load(f)
         
     except:
-        users = None
-        userlist = {}
+        userlist = []
 
-    if username in userlist.keys():
-        if password in userlist.values():
+
+
+    if username in [User.username for User in userlist]:
+        if password in [User.password for User in userlist]:
             print("login successfully")
+            changeDir(username)
             result = username + " Login Sucessfully"
             return result
         else:
             return "Incorrect password"
 
     else:
-        while username not in userlist.keys():       
+        while username not in [User.username for User in userlist]:      
             print(" Please enter valid Username")
             return "Invalid username"
 
@@ -145,7 +149,7 @@ async def handle_commands(reader, writer):
 
         if split_message[0] == 'register':
             #register(split_message[1], split_message[2])
-            writer.write(register(split_message[1], split_message[2]).encode())
+            writer.write(register(split_message[1], split_message[2], split_message[3]).encode())
             await writer.drain()
             continue
 

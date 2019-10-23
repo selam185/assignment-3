@@ -49,6 +49,8 @@ async def handle_commands(reader, writer):
         writer.write(llist().encode())
         await writer.drain()
 
+    "change directory test"
+
     # print(f"Send: {message!r}")
     # writer.write(data)
     # await writer.drain()

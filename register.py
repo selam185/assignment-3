@@ -1,32 +1,33 @@
 import pickle
+import os
+import asyncio
+from collections import namedtuple
 
-try:
-    with open('users.pickle', 'rb') as f:
-        users = pickle.load(f)
-        userlist = users
-        
-except:
-    users = None
-    userlist = {}
+User = namedtuple('User', 'username password privileges')
 
-username =  input("Enter a user name  ")
-if username not in userlist.keys():
-    password = input("Enter a password  ")
-    userlist[username] = password
-    pickle.dump( userlist, open( "users.pickle", "wb" ) )
-    user = pickle.load( open( "users.pickle", "rb" ) )
-    print("sign-up successfully")
+def reg():
+    try:
+        with open('reg.pickle', 'rb') as f:
+            userlist = pickle.load(f)
+    except:
+        userlist = []
+
+    username = input("username")
+    password = input("password")
+    privileges = input("privileges")
     
-else:
-    while username in userlist.keys():       
-        print("the username is taken. Try another")
-        username = input("Enter a username  ")
-        if username not in userlist.keys():
-            password = input("Enter a password  ")
-            userlist[username] = password
-            pickle.dump( userlist, open( "users.pickle", "wb" ) )
-            user = pickle.load( open( "users.pickle", "rb" ) )
-            print("sign-up successfully")
-            break
+    new_user = User(username, password, privileges)
 
+    if new_user.username not in [User.username for User in userlist]:
+        userlist.append(new_user)
+        pickle.dump(userlist, open("reg.pickle", "wb"))
+        print("Register successfully")
+        os.mkdir(username)
+        result = "User registered Sucessfully and Directory " + username + " created"
+        return result
 
+    else:  
+        print("the username is already exits. Please enter valid")
+        return "Username already exists" 
+
+reg()
