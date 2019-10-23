@@ -135,45 +135,57 @@ def login(username, password):
 
 
 async def handle_commands(reader, writer):
-    data = await reader.read(10000)
-    message = data.decode()
-    addr = writer.get_extra_info('peername') 
-    print(f"Received {message!r} from {addr!r}")
+    while True:
+        data = await reader.read(10000)
+        message = data.decode()
+        addr = writer.get_extra_info('peername') 
+        print(f"Received {message!r} from {addr!r}")
 
-    split_message = message.split(' ')
+        split_message = message.split(' ')
 
-    if split_message[0] == 'register':
-        #register(split_message[1], split_message[2])
-        writer.write(register(split_message[1], split_message[2]).encode())
+        if split_message[0] == 'register':
+            #register(split_message[1], split_message[2])
+            writer.write(register(split_message[1], split_message[2]).encode())
+            await writer.drain()
+            continue
+
+        if split_message[0] == 'login':
+            #login(split_message[1], split_message[2])
+            writer.write(login(split_message[1], split_message[2]).encode())
+            await writer.drain()
+            continue
+
+        if message == 'list':
+            llist()
+            writer.write(llist().encode())
+            await writer.drain()
+            continue
+
+        if split_message[0] == 'readfile':
+            readfile(split_message[1])
+            writer.write(readfile(split_message[1]).encode())
+            await writer.drain()
+            continue
+
+        if split_message[0] == 'writefile':
+            writefile(split_message[1], split_message[2])
+            writer.write(writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
+            await writer.drain()
+            continue
+
+        if split_message[0] == 'change' and split_message[1] == 'directory':
+            writer.write(changeDir(split_message[2]).encode())
+            await writer.drain()
+            continue
+            
+        if split_message[0] == 'create' and split_message[1] == 'directory':
+            writer.write(createDir(split_message[2]).encode())
+            await writer.drain()
+            continue
+
+        writer.write("Invalid command".encode())
         await writer.drain()
 
-    if split_message[0] == 'login':
-        #login(split_message[1], split_message[2])
-        writer.write(login(split_message[1], split_message[2]).encode())
-        await writer.drain()
-
-    if message == 'list':
-        llist()
-        writer.write(llist().encode())
-        await writer.drain()
-
-    if split_message[0] == 'readfile':
-        readfile(split_message[1])
-        writer.write(readfile(split_message[1]).encode())
-        await writer.drain()
-
-    if split_message[0] == 'writefile':
-        writefile(split_message[1], split_message[2])
-        writer.write(writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
-        await writer.drain()
-
-    if split_message[0] == 'change' and split_message[1] == 'directory':
-        writer.write(changeDir(split_message[2]).encode())
-        await writer.drain()
-        
-    if split_message[0] == 'create' and split_message[1] == 'directory':
-        writer.write(createDir(split_message[2]).encode())
-        await writer.drain()
 
 async def main():
     server = await asyncio.start_server(
