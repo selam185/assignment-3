@@ -26,7 +26,10 @@ async def client():
 
         if command == 'quit':
             # logout from server
-            # send message to logout the user corresponding to this client
+            # send message to logout the user corresponding to the client
+            writer.write(command.encode())
+            data = await reader.read(10000)
+            print(f'Received: {data.decode()!r}')
 
             print('Close the connection')
             writer.close
