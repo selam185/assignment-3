@@ -157,23 +157,86 @@ async def handle_commands(reader, writer):
 
         split_message = message.split(' ')
 
-        if split_message[0] == 'register':
-            #register(split_message[1], split_message[2])
-            writer.write(library.register(split_message[1], split_message[2], split_message[3]).encode())
-            await writer.drain()
-            continue
-
-        if split_message[0] == 'login':
-            #login(split_message[1], split_message[2])
-            writer.write(library.login(split_message[1], split_message[2], addr).encode())
-            await writer.drain()
-            continue
+        if split_message[0] == 'change_folder':
+            try:
+                writer.write(library.changeDir(split_message[1]).encode())
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "change folder input should be in the form: 'change folder <name>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
 
         if message == 'list':
             library.llist()
             writer.write(library.llist().encode())
             await writer.drain()
             continue
+
+        if split_message[0] == 'read_file':
+            try:
+                library.readfile(split_message[1])
+                writer.write(library.readfile(split_message[1]).encode())
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "read_file input should be in the form: 'read_file <name>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
+
+        if split_message[0] == 'write_file':
+            try:
+                library.writefile(split_message[1], split_message[2])
+                writer.write(library.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
+
+        if split_message[0] == 'create_folder':
+            try:
+                writer.write(library.createDir(split_message[1]).encode())
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "create folder input should be in the form: 'create_folder <name>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
+
+        if split_message[0] == 'register':
+            try:
+                writer.write(library.register(split_message[1], split_message[2], split_message[3]).encode())
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "register input should be in the form: 'register <username> <password> <privilege>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
+
+        if split_message[0] == 'login':
+            try:
+                writer.write(library.login(split_message[1], split_message[2], addr).encode())
+                await writer.drain()
+                continue
+            except IndexError:
+                error_msg = "login input should be in the form: 'login <username> <password>'"
+                print(error_msg)
+                writer.write(error_msg.encode())
+                await writer.drain()
+                continue
+
 
         if message == 'quit':
             for usr, tcp in library.logged_in.items():
@@ -185,27 +248,6 @@ async def handle_commands(reader, writer):
             await writer.drain()
             continue
 
-        if split_message[0] == 'readfile':
-            library.readfile(split_message[1])
-            writer.write(library.readfile(split_message[1]).encode())
-            await writer.drain()
-            continue
-
-        if split_message[0] == 'writefile':
-            library.writefile(split_message[1], split_message[2])
-            writer.write(library.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
-            await writer.drain()
-            continue
-
-        if split_message[0] == 'change' and split_message[1] == 'directory':
-            writer.write(library.changeDir(split_message[2]).encode())
-            await writer.drain()
-            continue
-            
-        if split_message[0] == 'create' and split_message[1] == 'directory':
-            writer.write(library.createDir(split_message[2]).encode())
-            await writer.drain()
-            continue
 
         writer.write("Invalid command".encode())
         await writer.drain()
