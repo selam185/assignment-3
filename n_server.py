@@ -239,9 +239,10 @@ async def handle_commands(reader, writer):
 
 
         if message == 'quit':
-            for usr, tcp in library.logged_in.items():
-                if tcp == addr:
+            for usr, ip_tcp in library.logged_in.items():
+                if ip_tcp == addr:
                     user = usr
+                    break
             del library.logged_in[user]
             print("Logged out")
             writer.write("Logging out...".encode())

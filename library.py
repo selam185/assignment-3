@@ -130,7 +130,7 @@ def login(username, password, ip_tcp):
             if username not in logged_in.keys():
                 print("login successfully")
                 changeDir(username)
-                logged_in[username] = ip_tcp
+                logged_in.update( {username:ip_tcp} )
                 result = username + " Login Sucessfully"
                 return result
             else:

@@ -43,7 +43,7 @@ async def client():
         writer.write(command.encode())
 
         data = await reader.read(10000)
-        print(f'Received: {data.decode()!r}')
+        print(f'Received: {data.decode()}')
 
 asyncio.run(client())
 
