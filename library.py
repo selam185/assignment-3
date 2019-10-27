@@ -91,8 +91,8 @@ def readfile(name):
         return "Request denied"
 
 def register(username, password, privileges):
-    # if privileges != "admin" or privileges != "user":
-    #     return "Privileges must be either 'user' or 'admin'."
+    if not (privileges == "admin" or privileges == "user"):
+        return "Privileges must be either 'user' or 'admin'."
     try:
         with open('reg.pickle', 'rb') as f:
             userlist = pickle.load(f)
