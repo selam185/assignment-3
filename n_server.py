@@ -3,6 +3,9 @@
 
 import asyncio
 import library
+import os
+
+absolute_path = ""
 
 # import os
 # import time
@@ -148,7 +151,14 @@ import library
 #             return "Invalid username"
 
 
-async def handle_commands(reader, writer):
+if os.path.exists("root"):
+    absolute_path = os.path.abspath("root")
+else:
+    os.mkdir("root")
+    absolute_path = os.path.abspath("root")
+print(absolute_path)
+
+async def handle_commands(reader, writer, absolute_path=absolute_path):
     while True:
         data = await reader.read(10000)
         message = data.decode()
@@ -215,7 +225,7 @@ async def handle_commands(reader, writer):
 
         if split_message[0] == 'register':
             try:
-                writer.write(library.register(split_message[1], split_message[2], split_message[3]).encode())
+                writer.write(library.register(split_message[1], split_message[2], split_message[3], absolute_path).encode())
                 await writer.drain()
                 continue
             except IndexError:
@@ -256,7 +266,7 @@ async def handle_commands(reader, writer):
 
 async def main():
     server = await asyncio.start_server(
-        handle_commands, '127.0.0.1', 8888)
+    handle_commands, '127.0.0.1', 8888)
 
     addr = server.sockets[0].getsockname()
     print(f'Serving on {addr}')

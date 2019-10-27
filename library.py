@@ -90,7 +90,7 @@ def readfile(name):
         print("Request denied")
         return "Request denied"
 
-def register(username, password, privileges):
+def register(username, password, privileges, path):
     if not (privileges == "admin" or privileges == "user"):
         return "Privileges must be either 'user' or 'admin'."
     try:
@@ -106,7 +106,10 @@ def register(username, password, privileges):
         userlist.append(new_user)
         pickle.dump(userlist, open("reg.pickle", "wb"))
         print("Register successfully")
+        old_path = os.getcwd()
+        os.chdir(path)
         os.mkdir(username)
+        os.chdir(old_path)
         result = "User registered Sucessfully and Directory " + username + " created"
         return result
 
@@ -128,11 +131,14 @@ def login(username, password, ip_tcp):
     if username in [User.username for User in userlist]:
         if password in [User.password for User in userlist]:
             if username not in logged_in.keys():
-                print("login successfully")
-                changeDir(username)
-                logged_in.update( {username:ip_tcp} )
-                result = username + " Login Sucessfully"
-                return result
+                if ip_tcp not in logged_in.values():
+                    print("login successfully")
+                    # changeDir(username)
+                    logged_in.update( {username:ip_tcp} )
+                    result = username + " Login Sucessfully"
+                    return result
+                else:
+                    return "This port is already logged in with another username"
             else:
                 return "User already logged in"
         else:
