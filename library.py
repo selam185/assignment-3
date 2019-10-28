@@ -106,10 +106,13 @@ def register(username, password, privileges, path):
         userlist.append(new_user)
         pickle.dump(userlist, open("reg.pickle", "wb"))
         print("Register successfully")
-        old_path = os.getcwd()
-        os.chdir(path)
-        os.mkdir(username)
-        os.chdir(old_path)
+        path1 = "root"
+        path2 = username
+        os.makedirs(os.path.join(path1, path2))
+        #old_path = os.getcwd()
+        #os.chdir(path)
+        #os.mkdir(username)
+        #os.chdir(old_path)
         result = "User registered Sucessfully and Directory " + username + " created"
         return result
 
