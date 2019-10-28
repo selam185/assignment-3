@@ -107,8 +107,14 @@ def register(username, password, privileges, path):
         pickle.dump(userlist, open("reg.pickle", "wb"))
         print("Register successfully")
         path1 = "root"
-        path2 = username
-        os.makedirs(os.path.join(path1, path2))
+        path3 = username
+        if privileges == "admin":
+            path2 = "Admins"
+            os.makedirs(os.path.join(path1, path2, path3))
+        elif privileges == "user":
+            path2 = "users"
+            os.makedirs(os.path.join(path1, path2,path3))
+      
         #old_path = os.getcwd()
         #os.chdir(path)
         #os.mkdir(username)
