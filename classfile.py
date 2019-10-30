@@ -1,6 +1,6 @@
 import os
 import time
-import reg.pickle from root
+# import reg.pickle from root
 
 #import logged_in from library
 
@@ -13,10 +13,12 @@ class User:
         self.privileges = privileges
         self.filename = ""
         self.index = 0
+        self.current_path = ""
 
 
     def __repr__(self):
-        print(f'{self.username} is created successfully')
+        return self.username
+        # f'{self.username} is created successfully'
 
     def __setusername__(self):
         try:
@@ -60,6 +62,7 @@ class User:
                     result = char[self.index : self.index + 10]
                     self.index = self.index + 10
                     print(result)
+                    return result
             else:
                 self.filename = filename
                 print(self.filename)
@@ -76,8 +79,8 @@ class User:
             print("Request denied")
             return "Request denied"
 
-        finally:
-                f.close()
+        # finally:
+        #         f.close()
 
 
     def writefile(self, filename, text):
@@ -96,7 +99,9 @@ class User:
                 f.close()
                 result = "File " + self.filename + "Created"
                 print(result)                      
-                
+
+            return result
+
         except OSError:
             print("Request denied")
             return "Request denied"
@@ -105,17 +110,19 @@ class User:
                 f.close()
 
 
-    def createdir(self):
+    def create_dir(self, folder_name):
         try:        
-            os.mkdir(self.username)
-            result = "User registered Sucessfully and Directory " + self.username + " created"
+            os.mkdir(folder_name)
+            result = "Directory " + folder_name + " created"
             print(result)
         except FileExistsError:
-            result = "Directory " + self.username + " already exists"
+            result = "Directory " + folder_name + " already exists"
             print(result)
+        return result
 
 
     def changedir(self,dir_name):
+        print("CHANGE FOLDER FUNCTION FROM CLASS")
         self.dir_name = dir_name
         print("Current Working Directory " , os.getcwd())
         try:
@@ -136,6 +143,7 @@ class User:
         
 
     def list(self):
+        print("LIST FUNCTION FROM CLASS")
         print(os.listdir(os.getcwd()))
         ls = os.listdir(os.getcwd())
         return_string = ""
@@ -154,7 +162,7 @@ class User:
             return_string += f_time + "\n"
             print(return_string)
 
-            return return_string
+        return return_string
 
 class Admin(User):
     def __init__(self, username, password, privileges):
@@ -169,7 +177,7 @@ class Admin(User):
             username = self.__getusername__(name)
             if username == None:
                 print ("The user does not exist")
-            else: self.userlist.remove(username)       
+            # else: self.userlist.remove(username)       
         else:
             print("\n Only administrators with full admin rights can remove \n")
 
@@ -181,11 +189,11 @@ class Admin(User):
 #user.createdir()
 #user.changedir('telvi7')
 #user.list()
-user=User('a','b','user')
+# user=User('a','b','user')
 
 #user.readfile("Newtext.txt")
 #user.readfile("Newtext.txt")
-user.readfile("new.txt")
+# user.readfile("new.txt")
 
 #user.writefile("new.txt", "hello")
 #user.writefile("new.txt", "world")
