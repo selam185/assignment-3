@@ -1,10 +1,10 @@
 import os
 import time
+import  pickle
 # import reg.pickle from root
 
 #import logged_in from library
 
-logged_in = {}
 
 class User:
     def __init__(self, username, password, privileges):
@@ -165,23 +165,7 @@ class User:
         return return_string
 
 class Admin(User):
-    def __init__(self, username, password, privileges):
-        super().__init__(username, password, privileges)
-        
-
-    def __del__(self):
-        self.privileges = "admin"
-      
-        if self.privileges:
-            name = input("\n Please input the user name you want to delete :\n")
-            username = self.__getusername__(name)
-            if username == None:
-                print ("The user does not exist")
-            # else: self.userlist.remove(username)       
-        else:
-            print("\n Only administrators with full admin rights can remove \n")
-        
-    def delete(username,password):
+    def delete(self, username,password):
         try:
             with open('reg.pickle', 'rb') as f:
                 userlist = pickle.load(f)
@@ -189,15 +173,15 @@ class Admin(User):
         except:
             userlist = []
 
-        if logged_in[username].privileges == "admin":
-            if logged_in[username].password == password:
-                if username in [User.username for USer in userlist]:
+        if self.privileges == "admin":
+            if self.password == password:
+                if username in [User.username for User in userlist]:
                     new_userlist = []
                     os.rmdir(username)
                     remove = username
-                    for word in userlist:
-                        if word != remove:
-                            new_userlist += [word]
+                    for user in userlist:
+                        if user != remove:
+                            new_userlist += [user]
                     f = open ('reg.pickle', 'w')
                     pickle.dump(new_userlist, f)
                     print("deleted")
