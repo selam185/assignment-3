@@ -23,6 +23,10 @@ class Server:
         self.logged_in = {}
 
     def register(self, username, password, privileges, path):
+        result = os.getcwd()
+        path = os.path.basename(os.path.normpath(result))
+        if path == ("root"):
+            os.chdir('..')
         if not (privileges == "admin" or privileges == "user"):
             return "Privileges must be either 'user' or 'admin'."
         try:
@@ -39,6 +43,11 @@ class Server:
             userlist.append(new_user)
             pickle.dump(userlist, open("reg.pickle", "wb"))
             print("Register successfully")
+            result = os.getcwd()
+            path = os.path.basename(os.path.normpath(result))
+            #if path == ("root"):
+             #   os.chdir('..')
+            #else:
             os.chdir("root")
             #path1 = "root"
             path2 = username
@@ -64,6 +73,9 @@ class Server:
     def login(self, username, password, ip_tcp):
         result = os.getcwd()
         path = os.path.basename(os.path.normpath(result))
+        if path == ("root"):
+            os.chdir('..')
+        #os.chdir('..')
         if path == ("Admins"):
             print ("yea")
             os.chdir('..')
@@ -78,19 +90,7 @@ class Server:
         except:
             userlist = []
 
-        for user in userlist:    
-            if user.privileges == "admin":
-                result = os.getcwd()
-                path = os.path.basename(os.path.normpath(result))
-                os.chdir("root")
-                os.chdir("Admins")
-                print(user.privileges)
-            if user.privileges == "user": 
-                result = os.getcwd()
-                path = os.path.basename(os.path.normpath(result))
-                os.chdir("root")
-                os.chdir("users")
-                print(user.privileges)
+        
                 
         # check if logged in already
         if username not in self.logged_in.keys():
@@ -266,7 +266,7 @@ class Server:
 
     async def main(self):
         server = await asyncio.start_server(
-        self.handle_commands, '127.0.0.1', 8888)
+        self.handle_commands, '127.0.0.1', 8080)
 
         addr = server.sockets[0].getsockname()
         print(f'Serving on {addr}')

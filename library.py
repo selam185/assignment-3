@@ -105,15 +105,17 @@ def register(username, password, privileges, path):
     if new_user.username not in [User.username for User in userlist]:
         userlist.append(new_user)
         pickle.dump(userlist, open("reg.pickle", "wb"))
+        #os
         print("Register successfully")
-        path1 = "root"
+        changeDir("root")
+        #path1 = "root"
         path3 = username
         if privileges == "admin":
             path2 = "Admins"
-            os.makedirs(os.path.join(path1, path2, path3))
+            os.makedirs(os.path.join(path2, path3))
         elif privileges == "user":
             path2 = "users"
-            os.makedirs(os.path.join(path1, path2,path3))
+            os.makedirs(os.path.join(path2,path3))
       
         #old_path = os.getcwd()
         #os.chdir(path)
@@ -125,24 +127,47 @@ def register(username, password, privileges, path):
     else:  
         print("the username is already exits. Please enter valid")
         return "Username already exists" 
+    return userlist
 
 
 def login(username, password, ip_tcp):
+    result = os.getcwd()
+    path = os.path.basename(os.path.normpath(result))
+    if path == ("Admins"):
+        print ("yea")
+        changeDir('..')
+        changeDir('..')
+    if path == ("users"):
+        changeDir('..')
+        changeDir('..')
+     
     try:
         with open('reg.pickle', 'rb') as f:
             userlist = pickle.load(f)
         
     except:
         userlist = []
+    print("userlist")
 
     global logged_in
-
+    for user in userlist:    
+        if user.privileges == "admin":
+            result = os.getcwd()
+            path = os.path.basename(os.path.normpath(result))
+            changeDir("root")
+            changeDir("Admins")
+            print(user.privileges)
+        if user.privileges == "user": 
+            result = os.getcwd()
+            path = os.path.basename(os.path.normpath(result))
+            changeDir("root")
+            changeDir("users")
+            print(user.privileges)
     if username in [User.username for User in userlist]:
         if password in [User.password for User in userlist]:
             if username not in logged_in.keys():
                 if ip_tcp not in logged_in.values():
                     print("login successfully")
-                    # changeDir(username)
                     logged_in.update( {username:ip_tcp} )
                     result = username + " Login Sucessfully"
                     return result
@@ -156,3 +181,35 @@ def login(username, password, ip_tcp):
         while username not in [User.username for User in userlist]:      
             print(" Please enter valid Username")
             return "Invalid username"
+  
+
+def delete(username,password):
+    try:
+        with open('reg.pickle', 'rb') as f:
+            userlist = pickle.load(f)
+  
+    except:
+        userlist = []
+
+    if logged_in[username].privileges == "admin":
+        if logged_in[username].password == password:
+            if username in [User.username for USer in userlist]:
+                new_userlist = []
+                os.rmdir(username)
+                remove = username
+                for word in userlist:
+                    if word != remove:
+                        new_userlist += [word]
+                f = open ('reg.pickle', 'w')
+                pickle.dump(new_userlist, f)
+                print("deleted")
+                
+            else:
+                print("username does not exit")
+        else:
+            print("Incorrect password")
+    else:
+        print("access level is not admin")
+
+
+
