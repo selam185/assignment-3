@@ -180,6 +180,34 @@ class Admin(User):
             # else: self.userlist.remove(username)       
         else:
             print("\n Only administrators with full admin rights can remove \n")
+        
+    def delete(username,password):
+        try:
+            with open('reg.pickle', 'rb') as f:
+                userlist = pickle.load(f)
+    
+        except:
+            userlist = []
+
+        if logged_in[username].privileges == "admin":
+            if logged_in[username].password == password:
+                if username in [User.username for USer in userlist]:
+                    new_userlist = []
+                    os.rmdir(username)
+                    remove = username
+                    for word in userlist:
+                        if word != remove:
+                            new_userlist += [word]
+                    f = open ('reg.pickle', 'w')
+                    pickle.dump(new_userlist, f)
+                    print("deleted")
+                    
+                else:
+                    print("username does not exit")
+            else:
+                print("Incorrect password")
+        else:
+            print("access level is not admin")
 
     
 

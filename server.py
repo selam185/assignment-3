@@ -39,14 +39,15 @@ class Server:
             userlist.append(new_user)
             pickle.dump(userlist, open("reg.pickle", "wb"))
             print("Register successfully")
-            path1 = "root"
-            path3 = username
+            os.chdir("root")
+            #path1 = "root"
+            path2 = username
             if privileges == "admin":
-                path2 = "Admins"
-                os.makedirs(os.path.join(path1, path2, path3))
+                path1 = "Admins"
+                os.makedirs(os.path.join(path1, path2))
             elif privileges == "user":
-                path2 = "users"
-                os.makedirs(os.path.join(path1, path2,path3))
+                path1 = "users"
+                os.makedirs(os.path.join(path1,path2))
         
             #old_path = os.getcwd()
             #os.chdir(path)
@@ -61,13 +62,36 @@ class Server:
 
 
     def login(self, username, password, ip_tcp):
+        result = os.getcwd()
+        path = os.path.basename(os.path.normpath(result))
+        if path == ("Admins"):
+            print ("yea")
+            os.chdir('..')
+            os.chdir('..')
+
+        if path == ("users"):
+            os.chdir('..')
+            os.chdir('..')
         try:
             with open('reg.pickle', 'rb') as f:
                 userlist = pickle.load(f)
         except:
             userlist = []
 
-
+        for user in userlist:    
+            if user.privileges == "admin":
+                result = os.getcwd()
+                path = os.path.basename(os.path.normpath(result))
+                os.chdir("root")
+                os.chdir("Admins")
+                print(user.privileges)
+            if user.privileges == "user": 
+                result = os.getcwd()
+                path = os.path.basename(os.path.normpath(result))
+                os.chdir("root")
+                os.chdir("users")
+                print(user.privileges)
+                
         # check if logged in already
         if username not in self.logged_in.keys():
             pass
@@ -184,10 +208,22 @@ class Server:
                     writer.write(error_msg.encode())
                     await writer.drain()
                     continue
+            
+            if split_message[0] == 'delete':
+                try:
+                    writer.write(user.delete(split_message[1], split_message[2]).encode())
+                    await writer.drain()
+                    continue
+                except IndexError:
+                    error_msg = "delete input should be in the form: 'register <username> <password>'"
+                    print(error_msg)
+                    writer.write(error_msg.encode())
+                    await writer.drain()
+                    continue
 
             if split_message[0] == 'register':
                 try:
-                    writer.write(library.register(split_message[1], split_message[2], split_message[3], self.absolute_path).encode())
+                    writer.write(self.register(split_message[1], split_message[2], split_message[3], self.absolute_path).encode())
                     await writer.drain()
                     continue
                 except IndexError:
