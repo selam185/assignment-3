@@ -26,12 +26,14 @@ class Client:
 
         while True:
             command = input('Client waiting\n')
+            # strip command of whitespaces for exact matches in the if-statements
+            command = command.strip()
             self.command_list.append(command)
             split_command = command.split()
 
             if command == 'quit':
                 # logout from server
-                # send message to logout the user corresponding to the client
+                # send message to logout the user corresponding to this client
                 writer.write(command.encode())
                 data = await reader.read(10000)
                 print(f'Received: {data.decode()!r}')
