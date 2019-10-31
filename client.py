@@ -16,34 +16,36 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 #     print('Close the connection')
 #     writer.close()
+class Client:
+    async def client(self, address, port):
+        reader, writer = await asyncio.open_connection(
+           address, port)
 
-async def client():
-    reader, writer = await asyncio.open_connection(
-        '127.0.0.1', 8888)
+        while True:
+            command = input('Client waiting\n')
 
-    while True:
-        command = input('Client waiting\n')
+            if command == 'quit':
+                # logout from server
+                # send message to logout the user corresponding to the client
+                writer.write(command.encode())
+                data = await reader.read(10000)
+                print(f'Received: {data.decode()!r}')
 
-        if command == 'quit':
-            # logout from server
-            # send message to logout the user corresponding to the client
+                print('Close the connection')
+                writer.close
+                break
+
+            if command == 'commands':
+                print("List of all available commands")
+                continue
+
+            print(f'Send: {command!r}')
             writer.write(command.encode())
+
             data = await reader.read(10000)
-            print(f'Received: {data.decode()!r}')
+            print(f'Received: {data.decode()}')
 
-            print('Close the connection')
-            writer.close
-            break
-
-        if command == 'commands':
-            print("List of all available commands")
-            continue
-
-        print(f'Send: {command!r}')
-        writer.write(command.encode())
-
-        data = await reader.read(10000)
-        print(f'Received: {data.decode()}')
-
-asyncio.run(client())
+if __name__ == "__main__":
+    client = Client()
+    asyncio.run(client.client('127.0.0.1', 8080))
 
