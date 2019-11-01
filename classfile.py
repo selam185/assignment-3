@@ -187,8 +187,8 @@ class Admin(User):
                     new_userlist = []
                     for user in userlist:
                         if user.username != username:
-                            new_userlist += [user]
-                    f = open ('reg.pickle', 'w')
+                            new_userlist.append(user)
+                    f = open ('reg.pickle', 'wb')
                     pickle.dump(new_userlist, f)
                     result = f"{username} has been deleted"
                     print(result)

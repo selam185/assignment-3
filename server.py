@@ -36,8 +36,10 @@ class Server:
         except FileNotFoundError:
             userlist = []
 
-        new_user = classfile.User(username, password, privileges)
-
+        if privileges == "user":
+            new_user = classfile.User(username, password, privileges)
+        elif privileges == "admin":
+            new_user = classfile.Admin(username, password, privileges)
 
         if new_user.username not in [User.username for User in userlist]:
             userlist.append(new_user)
@@ -68,20 +70,18 @@ class Server:
             return "No users are registered yet/File not found"
 
         
-                
-        # check if logged in already
-        # not working bc elements in values are user objects, but username is a string
-        # !!!!!!!!!!!!
-        if username not in [user.username for user in self.logged_in.values()]:
-            pass
-        else:
-            return "User already logged in on another port"
-
+            
         # check if client already logged in
         if ip_tcp not in self.logged_in.keys():
             pass
         else:
             return "This port is already logged in with another username"
+
+        # check if logged in already
+        if username not in [user.username for user in self.logged_in.values()]:
+            pass
+        else:
+            return "User already logged in on another port"
 
         # check if username exists
         if username in [User.username for User in userlist]:
