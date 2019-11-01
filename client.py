@@ -44,7 +44,21 @@ class Client:
 
             if command == 'commands':
                 print("List of all available commands")
-                print("Here we should add a long string explaning all of them... as in canvas")
+                commands="""
+                    commands                                             Descriptions
+                change_folder <name>                             Move the current working directory
+                list                                             Print all files and folders in the current working directory
+                read_file <name>                                 Read data from the file <name> in the current working director
+                write_file <name> <input>                        Write the data in <input> to the end of the file <name> in 
+                                                                    the current working directory
+                create_folder <name>                            Create a new folder with the specified <name> in the current
+                                                                    working directory 
+                register <username> <password> <privileges>     Register a new user with the <privileges> to the server using
+                                                                    the <username> and <password> 
+                login <username> <password>                     Log in the user conforming with <username> and <password>
+                delete <username> <password>                    Delete the user by conforming with admin password
+                """
+                print(commands)
                 continue
 
             if split_command[0] == "commands":
