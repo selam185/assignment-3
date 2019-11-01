@@ -1,59 +1,55 @@
 import os
 import time
 import  pickle
-# import reg.pickle from root
-
-#import logged_in from library
 
 
 class User:
     def __init__(self, username, password, privileges):
         self.username = username
         self.password = password
-        self.privileges = privileges
+        self.privilege = privileges
         self.filename = ""
         self.index = 0
         self.current_path = ""
 
 
-    def __repr__(self):
-        return self.username
-        # f'{self.username} is created successfully'
+    # def __repr__(self):
+    #     return self.username
 
-    def __setusername__(self):
-        try:
-            with open('reg.pickle', 'rb') as f:
-                userlist = pickle.load(f)
-        except:
-            userlist = []
-        if self.username in [User.username for User in userlist]:
-            if self.password in [User.password for User in userlist]:
-                return self.username
-        else:
-            return "User doesn't exists"
+    # def __setusername__(self):
+    #     try:
+    #         with open('reg.pickle', 'rb') as f:
+    #             userlist = pickle.load(f)
+    #     except:
+    #         userlist = []
+    #     if self.username in [User.username for User in userlist]:
+    #         if self.password in [User.password for User in userlist]:
+    #             return self.username
+    #     else:
+    #         return "User doesn't exists"
 
-    def __getusername__(self,username):
-        return self.username
+    # def __getusername__(self,username):
+    #     return self.username
         
         
-    def __setpath__(self,absolute_path):
-        try:
-            if os.path.exists("root"):
-                self.absolute_path = os.path.abspath("root")
-            else:
-                os.mkdir("root")
-                self.absolute_path = os.path.abspath("root")
-                print(absolute_path)
-        except OSError:
-            print("Request denied")
+    # def __setpath__(self,absolute_path):
+    #     try:
+    #         if os.path.exists("root"):
+    #             self.absolute_path = os.path.abspath("root")
+    #         else:
+    #             os.mkdir("root")
+    #             self.absolute_path = os.path.abspath("root")
+    #             print(absolute_path)
+    #     except OSError:
+    #         print("Request denied")
         
 
-    def __getpath__(self):
-        return self.absolute_path
+    # def __getpath__(self):
+    #     return self.absolute_path
 
 
     def readfile(self, filename):
-
+        os.chdir(self.current_path)
         try:              
             if self.filename:
                 f = open(self.filename, 'r')
@@ -79,12 +75,16 @@ class User:
             print("Request denied")
             return "Request denied"
 
-        # finally:
-        #         f.close()
+        finally:
+            f.close()
 
 
     def writefile(self, filename, text):
-        try:              
+        # move to the user's current location
+        os.chdir(self.current_path)
+
+        # open file to write to
+        try:
             if self.filename:
                 f = open(self.filename, 'a')
                 f.write(text)
@@ -102,7 +102,7 @@ class User:
 
             return result
 
-        except OSError:
+        except FileNotFoundError:
             print("Request denied")
             return "Request denied"
 
@@ -111,7 +111,8 @@ class User:
 
 
     def create_dir(self, folder_name):
-        try:        
+        try:
+            os.chdir(self.current_path)
             os.mkdir(folder_name)
             result = "Directory " + folder_name + " created"
             print(result)
@@ -121,91 +122,87 @@ class User:
         return result
 
 
-    def changedir(self,dir_name):
-        print("CHANGE FOLDER FUNCTION FROM CLASS")
-        self.dir_name = dir_name
+    def changedir(self, dir_name):
         print("Current Working Directory " , os.getcwd())
         try:
-            if self.dir_name == '..':
+            if dir_name == '..':
+                os.chdir(self.current_path)
                 os.chdir('..')
-                print("previous directory changed", os.getcwd())
+                self.current_path = os.getcwd()
+                print("Moved to outer folder", self.current_path)
             else:
-                os.chdir(self.dir_name)
-                print("inside directory changed", os.getcwd())
+                os.chdir(self.current_path)
+                os.chdir(dir_name)
+                self.current_path = os.getcwd()
+                print("Moved to folder", self.current_path)
 
-            print("Current Working Directory " , os.getcwd())
-            result = os.getcwd()
-            return "Current working directory " + result
-        
-        except OSError:
-            print("Request denied")
-            return "Request denied"
-        
+            return "Current working directory " + self.current_path
 
-    def list(self):
-        print("LIST FUNCTION FROM CLASS")
-        print(os.listdir(os.getcwd()))
+        except FileNotFoundError:
+            print("Folder not found")
+            return "Folder not found"
+        
+    def list_function(self):
+        os.chdir(self.current_path)
         ls = os.listdir(os.getcwd())
         return_string = ""
 
-        for f in ls:
-            f_name = os.path.basename(os.getcwd() + '\\' + f)
-            print(f_name, end=(30 - len(f_name)) * ' ')
-            return_string += f_name + "\t"
+        if len(ls):
+            for f in ls:
+                f_name = os.path.basename(os.getcwd() + '\\' + f)
+                print(f_name, end=(30 - len(f_name)) * ' ')
+                return_string += f_name + "\t"
 
-            f_size = os.path.getsize(os.getcwd() + '\\' + f)
-            print(f_size, end=(10 - len(str(f_size))) * ' ')
-            return_string += str(f_size) + "\t"
+                f_size = os.path.getsize(os.getcwd() + '\\' + f)
+                print(f_size, end=(10 - len(str(f_size))) * ' ')
+                return_string += str(f_size) + "\t"
 
-            f_time = time.ctime(os.path.getctime(os.getcwd() + '\\' + f))
-            print(f_time, end='\n')
-            return_string += f_time + "\n"
-            print(return_string)
+                f_time = time.ctime(os.path.getctime(os.getcwd() + '\\' + f))
+                print(f_time, end='\n')
+                return_string += f_time + "\n"
+                print(return_string)
+        else:
+            return_string = "(This folder is empty)"
 
         return return_string
 
 class Admin(User):
-    def delete(self, username,password):
+    def delete(self, username, password, root_path):
+        os.chdir(root_path)
         try:
             with open('reg.pickle', 'rb') as f:
                 userlist = pickle.load(f)
-    
-        except:
-            userlist = []
+        except FileNotFoundError:
+            return "No users are registered yet/File not found"
 
-        if self.privileges == "admin":
+        if self.privilege== "admin":
             if self.password == password:
                 if username in [User.username for User in userlist]:
+                    # Remove the users home directory
+                    try:
+                        os.removedirs(os.path.join("Users", username))
+                    except FileNotFoundError:
+                        os.removedirs(os.path.join("Admins", username))
+                    # Remove the user from the pickle file
                     new_userlist = []
-                    os.rmdir(username)
-                    remove = username
                     for user in userlist:
-                        if user != remove:
+                        if user.username != username:
                             new_userlist += [user]
                     f = open ('reg.pickle', 'w')
                     pickle.dump(new_userlist, f)
-                    print("deleted")
-                    
+                    result = f"{username} has been deleted"
+                    print(result)
+                    return result
                 else:
-                    print("username does not exit")
+                    result = f"{username} does not exist"
+                    print(result)
+                    return result
             else:
-                print("Incorrect password")
+                result = f"Incorrect password for admin {self.username}"
+                print(result)
+                return result
         else:
-            print("access level is not admin")
+            result = "Privilege must be Admin"
+            print(result)
+            return result
 
-    
-
-#user = Admin('ss','sss','admin')
-#user.__repr__()
-#user.Admin('ss')
-#user.createdir()
-#user.changedir('telvi7')
-#user.list()
-# user=User('a','b','user')
-
-#user.readfile("Newtext.txt")
-#user.readfile("Newtext.txt")
-# user.readfile("new.txt")
-
-#user.writefile("new.txt", "hello")
-#user.writefile("new.txt", "world")

@@ -15,91 +15,70 @@ class Server:
         # find the absolute path
         if os.path.exists("root"):
             self.absolute_path = os.path.abspath("root")
+            os.chdir("root")
         else:
             os.mkdir("root")
             self.absolute_path = os.path.abspath("root")
+            os.chdir("root")
         print(self.absolute_path)
-        # list of logged in users if empty when server starts
+        # dictionary of logged in users if empty when server starts
         self.logged_in = {}
 
-    def register(self, username, password, privileges, path):
-        result = os.getcwd()
-        path = os.path.basename(os.path.normpath(result))
-        if path == ("root"):
-            os.chdir('..')
+    def register(self, username, password, privileges):
+        # The server should be at root to read reg.pickle
+        os.chdir(self.absolute_path)
         if not (privileges == "admin" or privileges == "user"):
             return "Privileges must be either 'user' or 'admin'."
         try:
             with open('reg.pickle', 'rb') as f:
                 userlist = pickle.load(f)
-        except:
+        # If no user accounts exist yet, create an empty list
+        except FileNotFoundError:
             userlist = []
 
         new_user = classfile.User(username, password, privileges)
-        # new_user = User(username, password, privileges)
 
 
         if new_user.username not in [User.username for User in userlist]:
             userlist.append(new_user)
             pickle.dump(userlist, open("reg.pickle", "wb"))
             print("Register successfully")
-            result = os.getcwd()
-            path = os.path.basename(os.path.normpath(result))
-            #if path == ("root"):
-             #   os.chdir('..')
-            #else:
-            os.chdir("root")
-            #path1 = "root"
-            path2 = username
+
             if privileges == "admin":
-                path1 = "Admins"
-                os.makedirs(os.path.join(path1, path2))
+                group = "Admins"
+                os.makedirs(os.path.join(group, username))
             elif privileges == "user":
-                path1 = "users"
-                os.makedirs(os.path.join(path1,path2))
+                group = "Users"
+                os.makedirs(os.path.join(group, username))
         
-            #old_path = os.getcwd()
-            #os.chdir(path)
-            #os.mkdir(username)
-            #os.chdir(old_path)
-            result = "User registered Sucessfully and Directory " + username + " created"
+            result = "User registered sucessfully and folder " + username + " created in " + group
             return result
 
         else:  
-            print("the username is already exits. Please enter valid")
+            print("The username is already exits. Please enter valid")
             return "Username already exists" 
 
 
     def login(self, username, password, ip_tcp):
-        result = os.getcwd()
-        path = os.path.basename(os.path.normpath(result))
-        if path == ("root"):
-            os.chdir('..')
-        #os.chdir('..')
-        if path == ("Admins"):
-            print ("yea")
-            os.chdir('..')
-            os.chdir('..')
-
-        if path == ("users"):
-            os.chdir('..')
-            os.chdir('..')
+        os.chdir(self.absolute_path)
         try:
             with open('reg.pickle', 'rb') as f:
                 userlist = pickle.load(f)
-        except:
-            userlist = []
+        except FileNotFoundError:
+            return "No users are registered yet/File not found"
 
         
                 
         # check if logged in already
-        if username not in self.logged_in.keys():
+        # not working bc elements in values are user objects, but username is a string
+        # !!!!!!!!!!!!
+        if username not in [user.username for user in self.logged_in.values()]:
             pass
         else:
-            return "User already logged in"
+            return "User already logged in on another port"
 
         # check if client already logged in
-        if ip_tcp not in self.logged_in.values():
+        if ip_tcp not in self.logged_in.keys():
             pass
         else:
             return "This port is already logged in with another username"
@@ -119,13 +98,18 @@ class Server:
         
         # compare password
         if password == user.password:
-            pass
+            print("Password correct")
         else:
             return "Incorrect password"
 
 
-        print("login successfully")
-        # changeDir(username)
+        print("login successful")
+
+        # move to the users home folder
+        group = user.privilege.capitalize() + "s"
+        print("group is " + group)
+        user.current_path = os.path.join(self.absolute_path, group, username)
+
         self.logged_in.update( {ip_tcp:user} )
         result = username + " Login Sucessfully"
         return result
@@ -143,7 +127,6 @@ class Server:
 
             # identify the user object connected to the address
             try:
-                # print("logged_in dict is", str(self.logged_in))
                 user = self.logged_in[addr]
                 print(user)
             except KeyError:
@@ -152,8 +135,8 @@ class Server:
             if split_message[0] == 'change_folder':
                 try:
                     writer.write(user.changedir(split_message[1]).encode())
-                    # writer.write(library.changeDir(split_message[1]).encode())
                     await writer.drain()
+                    os.chdir(self.absolute_path)
                     continue
                 except IndexError:
                     error_msg = "change folder input should be in the form: 'change folder <name>'"
@@ -163,19 +146,16 @@ class Server:
                     continue
 
             if message == 'list':
-                user.list()
-                writer.write(user.list().encode())
-                # library.llist()
-                # writer.write(library.llist().encode())
+                writer.write(user.list_function().encode())
                 await writer.drain()
+                os.chdir(self.absolute_path)
                 continue
 
             if split_message[0] == 'read_file':
                 try:
                     writer.write(user.readfile(split_message[1]).encode())
-                    # library.readfile(split_message[1])
-                    # writer.write(library.readfile(split_message[1]).encode())
                     await writer.drain()
+                    os.chdir(self.absolute_path)
                     continue
                 except IndexError:
                     error_msg = "read_file input should be in the form: 'read_file <name>'"
@@ -186,9 +166,9 @@ class Server:
 
             if split_message[0] == 'write_file':
                 try:
-                    # library.writefile(split_message[1], split_message[2])
                     writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
                     await writer.drain()
+                    os.chdir(self.absolute_path)
                     continue
                 except IndexError:
                     error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
@@ -201,6 +181,7 @@ class Server:
                 try:
                     writer.write(user.create_dir(split_message[1]).encode())
                     await writer.drain()
+                    os.chdir(self.absolute_path)
                     continue
                 except IndexError:
                     error_msg = "create folder input should be in the form: 'create_folder <name>'"
@@ -211,7 +192,7 @@ class Server:
             
             if split_message[0] == 'delete':
                 try:
-                    writer.write(user.delete(split_message[1], split_message[2]).encode())
+                    writer.write(user.delete(split_message[1], split_message[2], self.absolute_path).encode())
                     await writer.drain()
                     continue
                 except IndexError:
@@ -223,7 +204,7 @@ class Server:
 
             if split_message[0] == 'register':
                 try:
-                    writer.write(self.register(split_message[1], split_message[2], split_message[3], self.absolute_path).encode())
+                    writer.write(self.register(split_message[1], split_message[2], split_message[3]).encode())
                     await writer.drain()
                     continue
                 except IndexError:
@@ -236,8 +217,6 @@ class Server:
             if split_message[0] == 'login':
                 try:
                     writer.write(self.login(split_message[1], split_message[2], addr).encode())
-                    # print(self.logged_in)
-                    # writer.write(library.login(split_message[1], split_message[2], addr).encode())
                     await writer.drain()
                     continue
                 except IndexError:
@@ -249,10 +228,6 @@ class Server:
 
 
             if message == 'quit':
-                # for ip_tcp, usr in self.logged_in.items():
-                #     if ip_tcp == addr:
-                #         user = usr
-                #         break
                 print(f"Logging out {self.logged_in[addr]}")
                 writer.write(f"Logging out {self.logged_in[addr]}...".encode())
                 del self.logged_in[addr]
