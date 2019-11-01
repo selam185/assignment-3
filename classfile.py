@@ -121,11 +121,16 @@ class User:
             print(result)
         return result
 
-
+    # add limitation, only inside their own home folder
     def changedir(self, dir_name):
         print("Current Working Directory " , os.getcwd())
         try:
             if dir_name == '..':
+                # check not leaving home-folder for user, allowed only for admin
+                if self.privilege == "user" and os.path.basename(self.current_path) == self.username:
+                    result = "User is not allowed to leave the home folder"
+                    print(result)
+                    return result
                 os.chdir(self.current_path)
                 os.chdir('..')
                 self.current_path = os.getcwd()
