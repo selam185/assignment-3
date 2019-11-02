@@ -69,15 +69,12 @@ class User:
                     self.index = -10
                 f.close()
                 self.index = self.index + 10
-                print(result)
             else:
                 self.filename = filename
-                print(self.filename)
                 f = open(self.filename, 'r')
                 result = f.read(10)
                 f.close()             
                 self.index = 10                  
-                print(result)         
             return "Content of line in reading file: \n\n" +result+"\n"
 
         except OSError:
@@ -104,7 +101,6 @@ class User:
         # open file to write to
         try:
             if os.path.isfile(filename):
-                print("The file already exists")     
                 f = open(filename, 'a')
                 f.write(text + "\n")
                 f.close()
@@ -112,19 +108,10 @@ class User:
                 return result
                 
             elif not os.path.isfile(filename):            
-                print("The new file is created")
                 f = open(filename, 'w')
                 f.write(text + "\n")
                 f.close()
                 result = "File " + filename + " Created"
-                print(result)                      
-                return result
-            else:
-                f = open(filename, 'w')
-                #f.write("")
-                f.close()
-                result = "File " + filename + " Erased"          
-                print(result)
                 return result
 
         except FileNotFoundError:
