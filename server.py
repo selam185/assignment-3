@@ -72,9 +72,9 @@ class Server:
         
             
         # check if client already logged in
-        if ip_tcp not in self.logged_in.keys():
-            pass
-        else:
+        if ip_tcp in self.logged_in.keys():
+            if username in [user.username for user in self.logged_in.values()]:
+                return "This port is already logged in with the same username"
             return "This port is already logged in with another username"
 
         # check if logged in already
@@ -129,92 +129,87 @@ class Server:
             try:
                 user = self.logged_in[addr]
                 print(user)
-            except KeyError:
-                print("User not yet logged in...\n...")
-
-            if split_message[0] == 'change_folder':
-                try:
-                    writer.write(user.changedir(split_message[1]).encode())
+                if message == 'list':
+                        
+                    writer.write(user.list_function().encode())
                     await writer.drain()
                     os.chdir(self.absolute_path)
                     continue
-                except IndexError:
-                    error_msg = "change folder input should be in the form: 'change folder <name>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
-
-            if message == 'list':
-                writer.write(user.list_function().encode())
-                await writer.drain()
-                os.chdir(self.absolute_path)
-                continue
-
-            if split_message[0] == 'read_file':
-                try:
-                    if len(split_message) == 2:
+                if split_message[0] == 'change_folder':
+                    try:
+                        writer.write(user.changedir(split_message[1]).encode())
+                        await writer.drain()
+                        os.chdir(self.absolute_path)
+                        continue
+                    except IndexError:
+                        error_msg = "change folder input should be in the form: 'change folder <name>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
+                if split_message[0] == 'read_file':
+                    try:
                         writer.write(user.readfile(split_message[1]).encode())
                         await writer.drain()
                         os.chdir(self.absolute_path)
                         continue
-                    else:
-                        writer.write(user.read_noinput().encode())
+                    except IndexError:
+                        error_msg = "read_file input should be in the form: 'read_file <name>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
                         await writer.drain()
-                        os.chdir(self.absolute_path)
                         continue
-                except IndexError:
-                    error_msg = "read_file input should be in the form: 'read_file <name>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
 
-            if split_message[0] == 'write_file':
-                try:
-                    if len(split_message) == 3:
+                if split_message[0] == 'write_file':
+                    try:
                         writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
                         await writer.drain()
                         os.chdir(self.absolute_path)
                         continue
-                    else:
-                        writer.write(user.write_notext(split_message[1]).encode())
+                    except IndexError:
+                        error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
+
+                if split_message[0] == 'create_folder':
+                    try:
+                        writer.write(user.create_dir(split_message[1]).encode())
                         await writer.drain()
                         os.chdir(self.absolute_path)
                         continue
-
-                except IndexError:
-                    error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
+                    except IndexError:
+                        error_msg = "create folder input should be in the form: 'create_folder <name>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
+                    
+                if split_message[0] == 'delete':
+                    try:
+                        writer.write(user.delete(split_message[1], split_message[2], self.absolute_path).encode())
+                        await writer.drain()
+                        continue
+                    except IndexError:
+                        error_msg = "delete input should be in the form: 'register <username> <password>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
+                if message == 'quit':
+                        
+                    print(f"Logging out {self.logged_in[addr]}")
+                    writer.write(f"Logging out {self.logged_in[addr]}...".encode())
+                    del self.logged_in[addr]
                     await writer.drain()
-                    continue
-
-            if split_message[0] == 'create_folder':
-                try:
-                    writer.write(user.create_dir(split_message[1]).encode())
-                    await writer.drain()
-                    os.chdir(self.absolute_path)
-                    continue
-                except IndexError:
-                    error_msg = "create folder input should be in the form: 'create_folder <name>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
-            
-            if split_message[0] == 'delete':
-                try:
-                    writer.write(user.delete(split_message[1], split_message[2], self.absolute_path).encode())
-                    await writer.drain()
-                    continue
-                except IndexError:
-                    error_msg = "delete input should be in the form: 'register <username> <password>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
-
+                    continue    
+            except KeyError:
+                print("User not yet logged in...\n...")
+                #writer.write("User not yet logged in...\n...".encode())
+                #await writer.drain()
+                #continue
+     
             if split_message[0] == 'register':
                 try:
                     writer.write(self.register(split_message[1], split_message[2], split_message[3]).encode())
@@ -238,14 +233,6 @@ class Server:
                     writer.write(error_msg.encode())
                     await writer.drain()
                     continue
-
-
-            if message == 'quit':
-                print(f"Logging out {self.logged_in[addr]}")
-                writer.write(f"Logging out {self.logged_in[addr]}...".encode())
-                del self.logged_in[addr]
-                await writer.drain()
-                continue
 
 
             writer.write("Invalid command".encode())
