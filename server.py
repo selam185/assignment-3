@@ -153,10 +153,16 @@ class Server:
 
             if split_message[0] == 'read_file':
                 try:
-                    writer.write(user.readfile(split_message[1]).encode())
-                    await writer.drain()
-                    os.chdir(self.absolute_path)
-                    continue
+                    if len(split_message) == 2:
+                        writer.write(user.readfile(split_message[1]).encode())
+                        await writer.drain()
+                        os.chdir(self.absolute_path)
+                        continue
+                    else:
+                        writer.write(user.read_noinput().encode())
+                        await writer.drain()
+                        os.chdir(self.absolute_path)
+                        continue
                 except IndexError:
                     error_msg = "read_file input should be in the form: 'read_file <name>'"
                     print(error_msg)
@@ -166,10 +172,17 @@ class Server:
 
             if split_message[0] == 'write_file':
                 try:
-                    writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
-                    await writer.drain()
-                    os.chdir(self.absolute_path)
-                    continue
+                    if len(split_message) == 3:
+                        writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
+                        await writer.drain()
+                        os.chdir(self.absolute_path)
+                        continue
+                    else:
+                        writer.write(user.write_notext(split_message[1]).encode())
+                        await writer.drain()
+                        os.chdir(self.absolute_path)
+                        continue
+
                 except IndexError:
                     error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
                     print(error_msg)

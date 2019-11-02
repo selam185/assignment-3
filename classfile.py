@@ -1,6 +1,7 @@
 import os
 import time
 import  pickle
+import os.path
 
 
 class User:
@@ -47,37 +48,54 @@ class User:
     # def __getpath__(self):
     #     return self.absolute_path
 
+    def read_noinput(self):
+        # read file without filename
+        temp = self.filename
+        self.filename = ""
+        self.index = 0
+        return  temp + " has been closed "
+
 
     def readfile(self, filename):
+        # move to the user's current location
         os.chdir(self.current_path)
-        try:              
+        # open file to read    
+        try:
             if self.filename:
                 f = open(self.filename, 'r')
-                for char in f:
-                    print("if")
-                    result = char[self.index : self.index + 10]
-                    self.index = self.index + 10
-                    print(result)
-                    return result
+                result = f.read(self.index + 10)
+                result = result[self.index :]
+                if len(result) < 10:
+                    self.index = -10
+                f.close()
+                self.index = self.index + 10
+                print(result)
             else:
                 self.filename = filename
                 print(self.filename)
                 f = open(self.filename, 'r')
-                for char in f:
-                    print("else")
-                    result = char[0:10]
-                    self.index = self.index + 10
-                    #result = f.read(100)
-                    print(result)         
-                return "file reading:    " + result
-                
+                result = f.read(10)
+                f.close()             
+                self.index = 10                  
+                print(result)         
+            return "Content of line in reading file: \n\n" +result+"\n"
+
         except OSError:
             print("Request denied")
             return "Request denied"
 
-        finally:
-            f.close()
+    
+    def write_notext(self, filename):
+        # move to the user's current location
+        os.chdir(self.current_path)
 
+        # open file to erase the content
+        
+        f = open(filename, 'w')
+        f.close()
+        result = "File " + filename + " Erased"          
+        print(result)
+        return result       
 
     def writefile(self, filename, text):
         # move to the user's current location
@@ -85,30 +103,35 @@ class User:
 
         # open file to write to
         try:
-            if self.filename:
-                f = open(self.filename, 'a')
-                f.write(text)
+            if os.path.isfile(filename):
+                print("The file already exists")     
+                f = open(filename, 'a')
+                f.write(text + "\n")
                 f.close()
-                result = "File " + self.filename + "updated"
-                print(result)
-            else:
-                self.filename = filename
-                print(self.filename)
-                f = open(self.filename, 'w')
-                f.write(text)
+                result = "File " + filename + " Updated"
+                return result
+                
+            elif not os.path.isfile(filename):            
+                print("The new file is created")
+                f = open(filename, 'w')
+                f.write(text + "\n")
                 f.close()
-                result = "File " + self.filename + "Created"
+                result = "File " + filename + " Created"
                 print(result)                      
-
-            return result
+                return result
+            else:
+                f = open(filename, 'w')
+                #f.write("")
+                f.close()
+                result = "File " + filename + " Erased"          
+                print(result)
+                return result
 
         except FileNotFoundError:
             print("Request denied")
             return "Request denied"
 
-        finally:
-                f.close()
-
+        
 
     def create_dir(self, folder_name):
         try:
