@@ -14,8 +14,8 @@ class User:
         self.current_path = ""
 
 
-    # def __repr__(self):
-    #     return self.username
+    def __repr__(self):
+        return self.username
 
     # def __setusername__(self):
     #     try:

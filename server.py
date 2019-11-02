@@ -111,7 +111,7 @@ class Server:
         user.current_path = os.path.join(self.absolute_path, group, username)
 
         self.logged_in.update( {ip_tcp:user} )
-        result = username + " Login Sucessfully"
+        result = username + f": login successful, moved to home directory root/{group}/{username}"
         return result
 
 
