@@ -32,22 +32,28 @@ class Client:
         # Create the connection to the server
         reader, writer = await asyncio.open_connection(
             address, port)
+        assert isinstance(reader, asyncio.streams.StreamReader), \
+            "Asyncio StreamReader on server is not working"
+        assert isinstance(writer, asyncio.streams.StreamWriter), \
+            "Asyncio StreamWriter on server is not working"
 
         while True:
-            print()
-            command = input('Client waiting\n')
+            command = input('\nClient waiting\n')
             # strip command of whitespaces for exact matches in the if-statements
             command = command.strip()
-            self.command_list.append(command)
+            # Split commands on spaces to handle separate words, e.g. read_file filename
             split_command = command.split()
+            # Append the command to command history
+            self.command_list.append(command)
 
             if command == 'quit':
-                # logout from server
-                # send message to logout the user corresponding to this client
+                # Send quit command to the server
+                # Logout the user in case they had logged in on this client
                 writer.write(command.encode())
                 data = await reader.read(10000)
-                print(f'\nReceived: {data.decode()!r}')
-
+                print(f'\nReceived:\n{data.decode()}')
+                # Close the connection unilaterally
+                # Regardless of whether a user was logged in on this client or not
                 print('Close the connection')
                 writer.close()
                 break
@@ -71,6 +77,7 @@ class Client:
                 print(commands)
                 continue
 
+            # If the command was 'commands', but also had some option
             if split_command[0] == "commands":
                 if split_command[1] == "issued":
                     print("\nHistory of commands issued:")
@@ -85,7 +92,7 @@ class Client:
             writer.write(command.encode())
 
             data = await reader.read(10000)
-            print(f'\nReceived: {data.decode()}')
+            print(f'\nReceived:\n{data.decode()}')
 
 
 if __name__ == "__main__":
