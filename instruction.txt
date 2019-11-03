@@ -1,0 +1,7 @@
+instructions on how to run.
+
+Run the server file first, it must be running or client will fail to connect. Then start the client.
+
+The test can be run on it's own, as long as all files are in the same folder.
+
+File structure is automatically created by running the server.
