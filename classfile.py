@@ -1,7 +1,6 @@
 import os
 import time
-import  pickle
-import os.path
+import pickle
 
 
 class User:
@@ -13,112 +12,80 @@ class User:
         self.index = 0
         self.current_path = ""
 
-
     def __repr__(self):
         return self.username
-
-    # def __setusername__(self):
-    #     try:
-    #         with open('reg.pickle', 'rb') as f:
-    #             userlist = pickle.load(f)
-    #     except:
-    #         userlist = []
-    #     if self.username in [User.username for User in userlist]:
-    #         if self.password in [User.password for User in userlist]:
-    #             return self.username
-    #     else:
-    #         return "User doesn't exists"
-
-    # def __getusername__(self,username):
-    #     return self.username
-        
-        
-    # def __setpath__(self,absolute_path):
-    #     try:
-    #         if os.path.exists("root"):
-    #             self.absolute_path = os.path.abspath("root")
-    #         else:
-    #             os.mkdir("root")
-    #             self.absolute_path = os.path.abspath("root")
-    #             print(absolute_path)
-    #     except OSError:
-    #         print("Request denied")
-        
-
-    # def __getpath__(self):
-    #     return self.absolute_path
 
     def read_noinput(self):
         # read file without filename
         temp = self.filename
         self.filename = ""
         self.index = 0
-        return "file has been closed "+ temp
-
+        return temp + " has been closed"
 
     def readfile(self, filename):
         # move to the user's current location
         os.chdir(self.current_path)
-        # open file to read    
+
+        # open file to read
         try:
+            # File is in the middle of being read
             if self.filename:
-                f = open(self.filename, 'r')
-                result = f.read(self.index + 100)
-                result = result[self.index :]
+                file_to_read = open(self.filename, 'r')
+                result = file_to_read.read(self.index + 100)
+                result = result[self.index:]
                 if len(result) < 100:
                     self.index = -100
-                f.close()
+                file_to_read.close()
                 self.index = self.index + 100
+            # File is being read from the beginning
             else:
                 self.filename = filename
-                f = open(self.filename, 'r')
-                result = f.read(100)
-                f.close()             
-                self.index = 100                  
-            return "Content of line in reading file: \n\n" +result+"\n"
+                file_to_read = open(self.filename, 'r')
+                result = file_to_read.read(100)
+                file_to_read.close()
+                self.index = 100
+            return "Content of line in reading file: \n\n" + result+"\n"
 
         except OSError:
             print("Request denied")
             return "Request denied"
 
-    
     def write_notext(self, filename):
-        # move to the user's current location
+        # Move to the user's current location
         os.chdir(self.current_path)
 
-        # open file to erase the content
-        
-        f = open(filename, 'w')
-        f.close()
-        result = "File " + filename + " Erased"          
+        # Open file to erase the content
+        file_to_erase = open(filename, 'w')
+        file_to_erase.close()
+        result = "File " + filename + " erased"
         print(result)
-        return result       
+        return result
 
     def writefile(self, filename, text):
-        # move to the user's current location
+        # Move to the user's current location
         os.chdir(self.current_path)
 
-        # open file to write to
+        # Open file to write to
         try:
+            # Append to the file if it already exists
             if os.path.isfile(filename):
-                f = open(filename, 'a')
-                f.write(text + "\n")
-                f.close()
+                file_to_append = open(filename, 'a')
+                file_to_append.write(text + "\n")
+                file_to_append.close()
                 result = "File " + filename + " Updated"
                 return result
-                
-            elif not os.path.isfile(filename):            
-                f = open(filename, 'w')
-                f.write(text + "\n")
-                f.close()
-                result = "File " + filename + " Created"
-                return result
+
+            # Create the file if it doesn't exist
+            file_to_write = open(filename, 'w')
+            file_to_write.write(text + "\n")
+            file_to_write.close()
+            result = "File " + filename + " Created"
+            return result
 
         except FileNotFoundError:
-            print("Request denied")
-            return "Request denied"
-
-        
+            result = "File not found"
+            print(result)
+            return result
 
     def create_dir(self, folder_name):
         try:
@@ -131,20 +98,21 @@ class User:
             print(result)
         return result
 
-    # add limitation, only inside their own home folder
     def changedir(self, dir_name):
-        print("Current Working Directory " , os.getcwd())
+        print("Current Working Directory ", os.getcwd())
         try:
             if dir_name == '..':
-                # check not leaving home-folder for user, allowed only for admin
-                if self.privilege == "user" and os.path.basename(self.current_path) == self.username:
+                # Stop user from leaving their home folder
+                if self.privilege == "user" and \
+                        os.path.basename(self.current_path) == self.username:
                     result = "User is not allowed to leave the home folder"
                     print(result)
                     return result
+                # Stop admin from leaving root
                 if self.privilege == "admin" and os.path.basename(self.current_path) == "root":
-                    result= "It's not allowed to leave the root directory"
+                    result = "It's not allowed to leave the root directory"
                     return result
-             
+
                 os.chdir(self.current_path)
                 os.chdir('..')
                 self.current_path = os.getcwd()
@@ -160,68 +128,67 @@ class User:
         except FileNotFoundError:
             print("Folder not found")
             return "Folder not found"
-        
+
     def list_function(self):
         os.chdir(self.current_path)
-        ls = os.listdir(os.getcwd())
+        list_of_files = os.listdir(os.getcwd())
         return_string = ""
 
-        if len(ls):
-            for f in ls:
-                f_name = os.path.basename(os.getcwd() + '\\' + f)
-                print(f_name, end=(30 - len(f_name)) * ' ')
+        if list_of_files:
+            for file_entry in list_of_files:
+                f_name = os.path.basename(os.getcwd() + '\\' + file_entry)
                 return_string += f_name + "\t"
 
-                f_size = os.path.getsize(os.getcwd() + '\\' + f)
-                print(f_size, end=(10 - len(str(f_size))) * ' ')
+                f_size = os.path.getsize(os.getcwd() + '\\' + file_entry)
                 return_string += str(f_size) + "\t"
 
-                f_time = time.ctime(os.path.getctime(os.getcwd() + '\\' + f))
-                print(f_time, end='\n')
+                f_time = time.ctime(os.path.getctime(
+                    os.getcwd() + '\\' + file_entry))
                 return_string += f_time + "\n"
-                print(return_string)
         else:
             return_string = "(This folder is empty)"
 
+        print(return_string)
         return return_string
+
 
 class Admin(User):
     def delete(self, username, password, root_path):
         os.chdir(root_path)
         try:
-            with open('reg.pickle', 'rb') as f:
-                userlist = pickle.load(f)
+            with open('reg.pickle', 'rb') as userlist_file:
+                userlist = pickle.load(userlist_file)
         except FileNotFoundError:
             return "No users are registered yet/File not found"
 
-        if self.privilege== "admin":
+        if self.privilege == "admin":
             if self.password == password:
                 if username in [User.username for User in userlist]:
-                    # Remove the users home directory
+                    # Remove the user's home directory
                     try:
                         os.removedirs(os.path.join("Users", username))
                     except FileNotFoundError:
                         os.removedirs(os.path.join("Admins", username))
-                    # Remove the user from the pickle file
+                    # Remove the user from the pickle file by overwriting it with an updated list
                     new_userlist = []
                     for user in userlist:
                         if user.username != username:
                             new_userlist.append(user)
-                    f = open ('reg.pickle', 'wb')
-                    pickle.dump(new_userlist, f)
+                    userlist_file = open('reg.pickle', 'wb')
+                    pickle.dump(new_userlist, userlist_file)
                     result = f"{username} has been deleted"
                     print(result)
                     return result
-                else:
-                    result = f"{username} does not exist"
-                    print(result)
-                    return result
-            else:
-                result = f"Incorrect password for admin {self.username}"
+                # If no user object with that username exists, return error message
+                result = f"{username} does not exist"
                 print(result)
                 return result
-        else:
-            result = "Privilege must be Admin"
+            # If the password is wrong, return error message
+            result = f"Incorrect password for admin {self.username}"
             print(result)
             return result
-
+        # If the user does not have admin privileges, actually it should not belong to
+        # the Admin class and should not have any way of accessing this function...
+        result = "Privilege must be Admin"
+        print(result)
+        return result

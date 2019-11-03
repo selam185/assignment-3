@@ -121,7 +121,8 @@ class ConnectionTest(unittest.TestCase):
 
         usr = classfile.User("name", "password", "user")
         usr.current_path = os.path.join(ROOT_PATH, "root", "Users")
-        expected_result = "file has been closed "
+        usr.filename = "some_file.extension"
+        expected_result = "some_file.extension has been closed"
         result = usr.read_noinput()
         self.assertEqual(result, expected_result)
         os.chdir(ROOT_PATH)
