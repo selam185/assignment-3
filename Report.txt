@@ -1,0 +1,58 @@
+﻿A simplified client-server solution for file management
+This report contains the overall workflow of the client-server solution for file management. Before starting with the code, we tried to take time for about one week by discussing how the overall workflow looks like and practicing to connect a simple client and server with the codes which are found on the course material and understanding them. Furthermore practicing how to read and write file for a simple structures and how to create a directory. After having the basics of those things we just implement a simple client and server connection so the client is waiting for a response from the server. Beside this we tried to do a simple coding for the service commands that have been listed on the server but not connecting to the server. Here below its described as how it looks
+    • creating a simple client and server connection and make sure that the server is connected for the client response without giving any commands
+    • creating a folder and make sure that the folder has been already created on the current working directory
+    • creating a write file at the first time and make sure that its able to write a text-file 
+    • creating a read file and make sure that its able to read a text file
+    • Create a new folder with the specified name in the current working directory
+    • Move the current working directory to the specified folder.
+    • register a new user with a username and password for the first time
+Now after those tasks which are done separately, we just merge them with the simple client and server connection. We just passed the blocks as a named tuple and see the response. This time server is able to receive the response from the client and passes the commands even if its not the final point that we need we are able to know that the connection is stable now. This functions are working for the basic functionality for the first time like the read file is able to read a file, the write file is able to write a file and not yet done as the requirements as mentioned. 
+After having all the basics, we just started to clear out things. Tasks that are done at this time are described as follows.
+1. read_file <name>:
+    • The Read file is currently working as it reads a file without any requirements
+    • Now Its working for reading data from the file <name> in the current working directory for the user issuing the request and return the first hundred characters in it.
+2. write_file <name> <input>:
+    • This is working currently as the data is written in <input> to the end of the file <name> in the current working directory for the user issuing the request.  And furthermore, if no file exists with the given <name>, a new file is going to be created in the current working directory for the user.
+3. list:
+    • The lists are now generated but looks messy and not arranged on line.
+4.  register <username> <password> <privileges>:
+    • The register function is currently working as it passes a username and password. Here the information related to the user i.e. username and password, are stored in the pickle file. The privilege is not yet included. 
+    • Now the privileges are included and the user is able to register with the username, password and privilege.
+5. login <username> <password>:
+    • Log in the user conforming with <username> onto the server and <password>
+6.create_folder <name>:
+    • Create a new folder with the specified <name> in the current working directory for the user issuing the request.
+7. change_folder <name>:
+    • Move the current working directory for the current user to the specified folder residing in the current folder.
+Having these functionality now, have Listed the difficulty that we face to proceed further, which are listed below. 
+    • The service command, write_file <name> <input is able to write a file at the first time. But when it comes to the next time to write a file, it will continue on the same line. 
+                Further expected result: when it comes on the next time, its expected to write on a new line.
+    • The service command read_file <name> is able to read a file and returns  return the first hundred characters but not works for subsequent calls.
+               Further expected result: Each subsequent call by the client is to return the next hundred characters in the file, up until all characters are read.
+    • The service command, list is working basically even if it looks messy.
+              Further expected result: Making the lists in order and readable
+    • The service command register <username> <password> <privileges> is able to register users with a specific password and privilege but not working as expected. It just creates the user folder in any random place and paths are not yet defined.
+            Further expected  results must be defined 
+    • The service commands login <username> <password> is able to login a user and passes as user is logged in successfully but it still Logs in with another user password.
+          More Expected result: when the command  login passes it has to check the correct password of the username. 
+    • The service command delete <username> <password> has not yet been started. The register and login commands have to work properly to stat with
+Solving the above problems
+    • The write File is now working as expected. It writes a data in <input> to the end of the file <name> in the current working directory for the user issuing the request, starting on a new line.
+                Problem is solved as:
+    • The service command, read_file <name>, is working as expected as it reads a data from the file <name> in the current working directory for the user issuing the request and return the first hundred characters in it. Each subsequent call by the same client is to return the next hundred characters in the file, up until all characters are read. I
+               Problem solved as:
+    • The service command, list, is working as expected now. It prints all files and folders in the current working directory for the user issuing the request. This command is giving information about the name, size, date and time of creation, in an easy-to-read manner. 
+               Problem solved as:
+    • The service command register <username> <password> <privileges> is partially working as expected now.
+               Problem solved as: File structure has been done first as we create a root directory and under that we are going to have a user and admins. Since we might have a number of users and also administrator's, we just specify them as groups of users and Admins so that if the user has a privilege of admin, a folder is going to be created as a root>Admins>username and the same for the ones that have an access level of user.  Furthermore classes are created so that a user can get their own information. Now when a user is registered, can get all the information like its password and its privilege. 
+    • The service command login<username><password> is working now. By conforming with <username> onto the server if the <password> provided matches the password used while registering, it allows login. If the <password> does not match or if the <username> does not exist, an error message is going to be returned to the request for the client to present to the user.
+          Problem solved as: Now since we are able to know the corresponding password with the specific username when creating the file, the user can successfully login with only the correct password.
+    • The service command, delete <username> <password>, has been tried for the first time now as the register and login function works well. But still there is a gap on the paths and not working well. Sometimes its unable to find the correct path since it creates the root on different directory and cant get the pickle file. 
+Now everything seems to work other than the Delete command. Not getting the correct path is not only disturbing the Delete user but also multiple users login. When multiple users login and connected to a server, they start to interfere each other. Like the commands one user passes starts to interfere with the other user. It its changing directory, the directory is going to be changed for all users but not to the specific user. 
+Solving problems
+in order to solve the problem, we just forced to go to the root directory at first whenever a user tries to login by a change directory. Then it will going to catch the path depending on the access level given like if its admin its going to enter to the group Admins by the change directory and matches the corresponding username and the same for users too. This is more modified as follows: 
+
+Now we are able to find the correct path and problem solved. 
+    • Delete the user conforming with <username> from the server is working now. It will delete the user by conforming the admins password which is currently login.  
+On the Final stage,  trying to check the flow of all commands as it works properly and figure out the things that has left from the requirements and Fixing the ones that are not working properly.  
