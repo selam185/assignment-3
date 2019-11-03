@@ -5,9 +5,11 @@
 import unittest
 import os
 import server
+import pickle
 import classfile
 
 ROOT_PATH = os.getcwd()
+server.Server()
 
 class ConnectionTest(unittest.TestCase):
     """ Handles test cases for all functions in class file """
@@ -21,28 +23,38 @@ class ConnectionTest(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    def test_register(self):
-        """ testing to register the user successfully.
-            Limitations such as everytime you run testscript
-            Enter new user name for registration otherwise
-            it shows Username already exist.
+    def test_register_and_login(self):
+        """ Testing to register the user successfully and then logging in.
          """
 
-        svr = server.Server()
         os.chdir(ROOT_PATH)
+        svr = server.Server()
         expected_result = ["User registered sucessfully", "Username already exists"]
-        test_input = [('temp', 'pwd', 'user'), ('temp', 'pwd', 'user')]
         result = []
 
-        for expected, test in zip(expected_result, test_input):
-            result.append(svr.register('temp', 'pwd', 'user')[:27])
-        self.assertEqual(result, expected_result)
+        result.append(svr.register('temp', 'pwd', 'user')[:27])
+        result.append(svr.register('temp', 'pwd', 'user')[:27])
+        
+        expected_login_result = "temp: login successful"
+        login_result = (svr.login('temp', 'pwd', 'tcp port')[:22])
+        
+        # remove the user before next test
+        with open('reg.pickle', 'rb') as userlist_file:
+            userlist = pickle.load(userlist_file)
+        try:
+            os.removedirs(os.path.join("Users", 'temp'))
+        except FileNotFoundError:
+            os.removedirs(os.path.join("Admins", 'temp'))
+        # Remove the user from the pickle file by overwriting it with an updated list
+        new_userlist = []
+        for user in userlist:
+            if user.username != 'temp':
+                new_userlist.append(user)
+        userlist_file = open('reg.pickle', 'wb')
+        pickle.dump(new_userlist, userlist_file)
+        userlist_file.close()
 
-    def test_login(self):
-        """ testing to user login successfully """
-        svr = server.Server()
-        expected_result = "login successful"
-        result = (svr.login('test', 'test', 'user')[6:22])
+        self.assertEqual(login_result, expected_login_result)
         self.assertEqual(result, expected_result)
 
     def test_change_dir(self):
@@ -65,25 +77,14 @@ class ConnectionTest(unittest.TestCase):
         result = []
         test_input = ['test.txt', 'test.txt']
 
-        for expected, test in zip(expected_result, test_input):
-            result.append(usr.writefile(test, 'testing'))
+        result.append(usr.writefile(test_input[0], 'testing'))
+        result.append(usr.writefile(test_input[1], 'testing'))
 
         self.assertEqual(result, expected_result)
         os.remove('test.txt')
         os.chdir(ROOT_PATH)
 
 
-    def test_readfile(self):
-        """testing to read text in the file, root and Users directory should already exists
-            in under root path if not run the server script and placed read.txt in that folder """
-
-        usr = classfile.User("name", "password", "user")
-        usr.current_path = os.path.join(ROOT_PATH, "root", "Users")
-        expected_result = 46
-        result = usr.readfile("readfile.txt")
-        result = len(result)
-        self.assertEqual(result, expected_result)
-        os.chdir(ROOT_PATH)
 
     def test_create_dir(self):
         """testing to create directory, root and Users directory should already exists
@@ -95,8 +96,9 @@ class ConnectionTest(unittest.TestCase):
         result = []
         test_input = ['testing', 'testing']
 
-        for expected, test in zip(expected_result, test_input):
-            result.append(usr.create_dir(test))
+        result.append(usr.create_dir(test_input[0]))
+        result.append(usr.create_dir(test_input[1]))
+
         self.assertEqual(result, expected_result)
 
         os.rmdir('testing')
@@ -108,7 +110,9 @@ class ConnectionTest(unittest.TestCase):
            and placed test_folder in that path"""
 
         usr = classfile.User("name", "password", "user")
-        usr.current_path = os.path.join(ROOT_PATH, "root", "Users", "test_folder")
+        usr.current_path = os.path.join(ROOT_PATH, "root", "Users")
+        usr.create_dir("test_folder")
+        usr.current_path = os.path.join(usr.current_path, "test_folder")
         expected_result = "(This folder is empty)"
         result = usr.list_function()
         self.assertEqual(result, expected_result)
@@ -134,7 +138,7 @@ class ConnectionTest(unittest.TestCase):
 
         usr = classfile.User("name", "password", "user")
         usr.current_path = os.path.join(ROOT_PATH, "root", "Users")
-        expected_result = "File test1.txt Erased"
+        expected_result = "File test1.txt erased"
         result = usr.write_notext('test1.txt')
         self.assertEqual(result, expected_result)
         os.chdir(ROOT_PATH)
@@ -164,12 +168,12 @@ class ConnectionTest(unittest.TestCase):
 
         usr = classfile.User("name", "password", "user")
         usr.current_path = os.path.join(ROOT_PATH, "root", "Users")
-        expected_result_write = ["File testread.txt Created"]
-        expected_result_read = ["Content "]
+        expected_result_write = "File testread.txt Created"
+        expected_result_read = "Content of line in reading file: \n\n" + "hello" + "\n\n"
 
-        for exp_write, exp_read in zip(expected_result_write, expected_result_read):
-            self.assertEqual(usr.writefile('testread.txt', ''), exp_write)
-            self.assertEqual((usr.readfile('testread.txt')[:8]), exp_read)
+        # for exp_write, exp_read in zip(expected_result_write, expected_result_read):
+        self.assertEqual(usr.writefile('testread.txt', 'hello'), expected_result_write)
+        self.assertEqual((usr.readfile('testread.txt')), expected_result_read)
 
         os.remove('testread.txt')
         os.chdir(ROOT_PATH)

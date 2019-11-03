@@ -7,8 +7,12 @@ Server which can be connected to by the client and handle its requests
 import asyncio
 import os
 import pickle
+import signal
 
 import classfile
+
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
 
 
 class Server:
@@ -19,10 +23,18 @@ class Server:
         if os.path.exists("root"):
             self.absolute_path = os.path.abspath("root")
             os.chdir("root")
+            if not os.path.exists("Admins"):
+                os.mkdir("Admins")
+            if not os.path.exists("Users"):
+                os.mkdir("Users")
         else:
             os.mkdir("root")
             self.absolute_path = os.path.abspath("root")
             os.chdir("root")
+            if not os.path.exists("Admins"):
+                os.mkdir("Admins")
+            if not os.path.exists("Users"):
+                os.mkdir("Users")
         print(self.absolute_path)
         # dictionary of logged in users if empty when server starts
         self.logged_in = {}
