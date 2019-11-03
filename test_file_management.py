@@ -39,7 +39,7 @@ class ConnectionTest(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_login(self):
-        """ testing to register the user successfully """
+        """ testing to user login successfully """
         svr = server.Server()
         expected_result = "login successful"
         result = (svr.login('test', 'test', 'user')[6:22])
