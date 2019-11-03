@@ -141,6 +141,10 @@ class User:
                     result = "User is not allowed to leave the home folder"
                     print(result)
                     return result
+                if self.privilege == "admin" and os.path.basename(self.current_path) == "root":
+                    result= "It's not allowed to leave the root directory"
+                    return result
+             
                 os.chdir(self.current_path)
                 os.chdir('..')
                 self.current_path = os.getcwd()
