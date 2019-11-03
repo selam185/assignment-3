@@ -1,10 +1,12 @@
+"""Module for the User and Admin classes"""
+
 import os
 import time
 import pickle
 
 
 class User:
-    """class for user with a privillage User """
+    """Class for user with a privilege User """
 
     def __init__(self, username, password, privileges):
         """Initialize the User class"""
