@@ -63,18 +63,18 @@ class User:
         try:
             if self.filename:
                 f = open(self.filename, 'r')
-                result = f.read(self.index + 10)
+                result = f.read(self.index + 100)
                 result = result[self.index :]
-                if len(result) < 10:
-                    self.index = -10
+                if len(result) < 100:
+                    self.index = -100
                 f.close()
-                self.index = self.index + 10
+                self.index = self.index + 100
             else:
                 self.filename = filename
                 f = open(self.filename, 'r')
-                result = f.read(10)
+                result = f.read(100)
                 f.close()             
-                self.index = 10                  
+                self.index = 100                  
             return "Content of line in reading file: \n\n" +result+"\n"
 
         except OSError:
