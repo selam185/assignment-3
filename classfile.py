@@ -4,7 +4,10 @@ import pickle
 
 
 class User:
+    """class for user with a privillage User """
+
     def __init__(self, username, password, privileges):
+        """Initialize the User class"""
         self.username = username
         self.password = password
         self.privilege = privileges
@@ -16,13 +19,14 @@ class User:
         return self.username
 
     def read_noinput(self):
-        # read file without filename
+        """Reset the read function"""
         temp = self.filename
         self.filename = ""
         self.index = 0
         return temp + " has been closed"
 
     def readfile(self, filename):
+        """Read data from the file <filename> in the current working directory"""
         # move to the user's current location
         os.chdir(self.current_path)
 
@@ -51,6 +55,7 @@ class User:
             return "Request denied"
 
     def write_notext(self, filename):
+        """Write a file with no content which will erase the file """
         # Move to the user's current location
         os.chdir(self.current_path)
 
@@ -62,6 +67,7 @@ class User:
         return result
 
     def writefile(self, filename, text):
+        """Write the data in the current working directory """
         # Move to the user's current location
         os.chdir(self.current_path)
 
@@ -88,6 +94,7 @@ class User:
             return result
 
     def create_dir(self, folder_name):
+        """Create a new folder in the current working directory"""
         try:
             os.chdir(self.current_path)
             os.mkdir(folder_name)
@@ -99,6 +106,7 @@ class User:
         return result
 
     def changedir(self, dir_name):
+        """Move the current working directory to the specified folder."""
         print("Current Working Directory ", os.getcwd())
         try:
             if dir_name == '..':
@@ -130,6 +138,7 @@ class User:
             return "Folder not found"
 
     def list_function(self):
+        """Print all files and folders in the current working directory"""
         os.chdir(self.current_path)
         list_of_files = os.listdir(os.getcwd())
         return_string = ""
@@ -153,7 +162,11 @@ class User:
 
 
 class Admin(User):
+    """class for a user with a privillage of Admin
+       inherits attributes from the class user
+    """
     def delete(self, username, password, root_path):
+        """Delete the user conforming currently logged in Admin's password"""
         os.chdir(root_path)
         try:
             with open('reg.pickle', 'rb') as userlist_file:
