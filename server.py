@@ -147,12 +147,19 @@ class Server:
                         writer.write(error_msg.encode())
                         await writer.drain()
                         continue
+
                 if split_message[0] == 'read_file':
                     try:
-                        writer.write(user.readfile(split_message[1]).encode())
-                        await writer.drain()
-                        os.chdir(self.absolute_path)
-                        continue
+                        if len(split_message) == 2:
+                            writer.write(user.readfile(split_message[1]).encode())
+                            await writer.drain()
+                            os.chdir(self.absolute_path)
+                            continue
+                        else:																		   										
+                            writer.write(user.read_noinput().encode())
+                            await writer.drain()
+                            os.chdir(self.absolute_path)
+                            continue
                     except IndexError:
                         error_msg = "read_file input should be in the form: 'read_file <name>'"
                         print(error_msg)
@@ -162,16 +169,23 @@ class Server:
 
                 if split_message[0] == 'write_file':
                     try:
-                        writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
-                        await writer.drain()
-                        os.chdir(self.absolute_path)
-                        continue
+                        if len(split_message) == 3:
+                            writer.write(user.writefile(split_message[1], split_message[2]).encode(encoding='utf-8'))
+                            await writer.drain()
+                            os.chdir(self.absolute_path)
+                            continue																																	
+                        else:													   						
+                            writer.write(user.write_notext(split_message[1]).encode())
+                            await writer.drain()
+                            os.chdir(self.absolute_path)
+                            continue
                     except IndexError:
                         error_msg = "write_file input should be in the form: 'write_file <name> <input>'"
                         print(error_msg)
                         writer.write(error_msg.encode())
                         await writer.drain()
                         continue
+
 
                 if split_message[0] == 'create_folder':
                     try:
@@ -197,6 +211,7 @@ class Server:
                         writer.write(error_msg.encode())
                         await writer.drain()
                         continue
+
                 if message == 'quit':
                         
                     print(f"Logging out {self.logged_in[addr]}")
@@ -210,29 +225,29 @@ class Server:
                 #await writer.drain()
                 #continue
      
-            if split_message[0] == 'register':
-                try:
-                    writer.write(self.register(split_message[1], split_message[2], split_message[3]).encode())
-                    await writer.drain()
-                    continue
-                except IndexError:
-                    error_msg = "register input should be in the form: 'register <username> <password> <privilege>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
+                if split_message[0] == 'register':
+                    try:
+                        writer.write(self.register(split_message[1], split_message[2], split_message[3]).encode())
+                        await writer.drain()
+                        continue
+                    except IndexError:
+                        error_msg = "register input should be in the form: 'register <username> <password> <privilege>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
 
-            if split_message[0] == 'login':
-                try:
-                    writer.write(self.login(split_message[1], split_message[2], addr).encode())
-                    await writer.drain()
-                    continue
-                except IndexError:
-                    error_msg = "login input should be in the form: 'login <username> <password>'"
-                    print(error_msg)
-                    writer.write(error_msg.encode())
-                    await writer.drain()
-                    continue
+                if split_message[0] == 'login':
+                    try:
+                        writer.write(self.login(split_message[1], split_message[2], addr).encode())
+                        await writer.drain()
+                        continue
+                    except IndexError:
+                        error_msg = "login input should be in the form: 'login <username> <password>'"
+                        print(error_msg)
+                        writer.write(error_msg.encode())
+                        await writer.drain()
+                        continue
 
 
             writer.write("Invalid command".encode())

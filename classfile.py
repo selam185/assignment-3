@@ -53,7 +53,7 @@ class User:
         temp = self.filename
         self.filename = ""
         self.index = 0
-        return  temp + " has been closed "
+        return "file has been closed "+ temp
 
 
     def readfile(self, filename):
@@ -124,10 +124,10 @@ class User:
         try:
             os.chdir(self.current_path)
             os.mkdir(folder_name)
-            result = "Directory " + folder_name + " created"
+            result = "Directory created " + folder_name
             print(result)
         except FileExistsError:
-            result = "Directory " + folder_name + " already exists"
+            result = "Directory already exists " + folder_name
             print(result)
         return result
 
