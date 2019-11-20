@@ -37,6 +37,8 @@ class Client:
         assert isinstance(writer, asyncio.streams.StreamWriter), \
             "Asyncio StreamWriter on server is not working"
 
+        print("\n Register or Login to access the server")
+
         while True:
             command = input('\nClient waiting\n')
             # strip command of whitespaces for exact matches in the if-statements

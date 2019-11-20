@@ -200,9 +200,9 @@ class Server:
 
                 if split_message[0] == 'write_file':
                     try:
-                        if len(split_message) == 3:
+                        if len(split_message) >= 3:
                             writer.write(user.writefile(
-                                split_message[1], split_message[2]).encode(encoding='utf-8'))
+                                split_message[1], split_message[2:]).encode(encoding='utf-8'))
                             await writer.drain()
                             os.chdir(self.absolute_path)
                             continue
