@@ -219,7 +219,7 @@ class Server:
                         writer.write(error_msg.encode())
                         await writer.drain()
                         continue
-
+                   
                 if split_message[0] == 'create_folder':
                     try:
                         writer.write(user.create_dir(
@@ -261,11 +261,12 @@ class Server:
                         f"Logging out {self.logged_in[addr]}...".encode())
                     del self.logged_in[addr]
                     await writer.drain()
-                    continue
+                    break
 
             # If the user has not yet logged in, proceed to commands which are valid before login
             except KeyError:
                 print("User not yet logged in...\n...")
+            
 
                 if split_message[0] == 'register':
                     try:
@@ -295,14 +296,13 @@ class Server:
                         await writer.drain()
                         continue
 
-                if message == 'quit':
+                if message == 'quit':                      
                     print("Quitting")
                     writer.write("Quitting".encode())
                     await writer.drain()
-                    continue
-
-            writer.write("Invalid command. " +
-                         "Check your spelling and check if you are logged in".encode())
+                    break            
+    
+            writer.write("Invalid command: Check your spelling and check if you are logged in".encode())
             await writer.drain()
 
     async def main(self):
