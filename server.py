@@ -235,6 +235,7 @@ class Server:
                         await writer.drain()
                         continue
 
+
                 if split_message[0] == 'delete':
                     try:
                         try:
@@ -246,14 +247,23 @@ class Server:
                             print(result)
                             writer.write(result.encode())
                             await writer.drain()
-                        continue
+                            continue
+                        # If the deleted user is logged in, they should be logged out
+                        deleted_user = split_message[1]
+                        for logged_in_addr, logged_in_user in self.logged_in.items():
+                            # str(logged_in_user) returns the username of the object for comparison
+                            if str(logged_in_user) == deleted_user:
+                                del self.logged_in[logged_in_addr]
+                                print(f"{deleted_user} has been logged out")
+                                break
+                        print(f"{deleted_user} was not logged in")
                     except IndexError:
                         error_msg = "delete input should be in the form: " + \
                             "'register <username> <password>'"
                         print(error_msg)
                         writer.write(error_msg.encode())
                         await writer.drain()
-                        continue
+                    continue                    
 
                 if message == 'quit':
                     print(f"Logging out {self.logged_in[addr]}")
