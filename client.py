@@ -1,5 +1,7 @@
 """
 Module for the Client class
+
+For creating Client objects to connect to Server objects to access file management.
 """
 
 import asyncio
@@ -10,8 +12,17 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 class Client:
     """
-    Class for client objects to connect to the server
-    Either pass on the commands to server, or handle them itself
+    Class for client objects to connect to the server.
+
+    Attribute:
+    self.command_list : list, of strings
+        A list of all commands issued while the client has been running.
+        Unless it's been reset by "commands clear".
+    
+    Function:
+    client
+        Async function handling the running of the client. Awaits and identifies
+        commands and either handles them itself of sends them on to the server.
     """
 
     def __init__(self):
@@ -19,7 +30,27 @@ class Client:
 
     async def client(self, address, port):
         """
-        The main client function, sets up the connection and handles inputs in a while loop
+        The main client function, sets up the connection and handles inputs in a while loop.
+
+        First the connection to the server is checked with asserts, making sure the connection
+        is opened correctly. Then the user is prompted to either register or login. After the
+        initial prompt, the function enters its main loop where it can receive user input.
+        If the user input is empty, or contains only spaces, the function loops around waiting
+        for new commands. All inputs issued containing at least some characters are saved in 
+        the Client object's command_list variable. If the input is 'commands' (with or without options),
+        the client prints the output. If the input is 'quit', the quit-command is passed to the
+        server and then the client closes the connection from its end. If the command is something
+        else, it is passed on to the server and the result is printed.
+
+        Return : None
+
+        Parameters
+        ------------------------------------------
+        address : string
+            The IP-address of the Server which the client should connect to.
+        port : int
+            The port of the Server which the client should connect to.
+
         """
         # Assert that address only contains numbers and period marks, as IP address should
         for char in address:
