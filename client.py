@@ -18,7 +18,7 @@ class Client:
     self.command_list : list, of strings
         A list of all commands issued while the client has been running.
         Unless it's been reset by "commands clear".
-    
+
     Function:
     client
         Async function handling the running of the client. Awaits and identifies
@@ -36,11 +36,11 @@ class Client:
         is opened correctly. Then the user is prompted to either register or login. After the
         initial prompt, the function enters its main loop where it can receive user input.
         If the user input is empty, or contains only spaces, the function loops around waiting
-        for new commands. All inputs issued containing at least some characters are saved in 
-        the Client object's command_list variable. If the input is 'commands' (with or without options),
-        the client prints the output. If the input is 'quit', the quit-command is passed to the
-        server and then the client closes the connection from its end. If the command is something
-        else, it is passed on to the server and the result is printed.
+        for new commands. All inputs issued containing at least some characters are saved in
+        the Client object's command_list variable. If the input is 'commands' (with or without
+        options), the client prints the output. If the input is 'quit', the quit-command is passed 
+        to the server and then the client closes the connection from its end. If the command is
+        something else, it is passed on to the server and the result is printed.
 
         Return : None
 
