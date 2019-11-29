@@ -172,7 +172,7 @@ class ConnectionTest(unittest.TestCase):
         expected_result_read = "Content of line in reading file: \n\n" + "hello" + "\n\n"
 
         # for exp_write, exp_read in zip(expected_result_write, expected_result_read):
-        self.assertEqual(usr.writefile('testread.txt', 'hello'), expected_result_write)
+        self.assertEqual(usr.writefile('testread.txt', ['hello']), expected_result_write)
         self.assertEqual((usr.readfile('testread.txt')), expected_result_read)
 
         os.remove('testread.txt')
