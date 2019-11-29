@@ -3,6 +3,7 @@
 import os
 import time
 import pickle
+import shutil
 
 
 class User:
@@ -35,7 +36,7 @@ class User:
         # open file to read
         try:
             # File is in the middle of being read
-            if self.filename:
+            if self.filename == filename:
                 file_to_read = open(self.filename, 'r')
                 result = file_to_read.read(self.index + 100)
                 result = result[self.index:]
@@ -72,20 +73,21 @@ class User:
         """Write the data in the current working directory """
         # Move to the user's current location
         os.chdir(self.current_path)
+        input = ' '.join(text)
 
         # Open file to write to
         try:
             # Append to the file if it already exists
             if os.path.isfile(filename):
                 file_to_append = open(filename, 'a')
-                file_to_append.write(text + "\n")
+                file_to_append.write(input + "\n")
                 file_to_append.close()
                 result = "File " + filename + " Updated"
                 return result
 
             # Create the file if it doesn't exist
             file_to_write = open(filename, 'w')
-            file_to_write.write(text + "\n")
+            file_to_write.write(input + "\n")
             file_to_write.close()
             result = "File " + filename + " Created"
             return result
@@ -181,9 +183,11 @@ class Admin(User):
                 if username in [User.username for User in userlist]:
                     # Remove the user's home directory
                     try:
-                        os.removedirs(os.path.join("Users", username))
+                        shutil.rmtree(os.path.join("Users", username))
+                        #os.removedirs(os.path.join("Users", username))
                     except FileNotFoundError:
-                        os.removedirs(os.path.join("Admins", username))
+                        shutil.rmtree(os.path.join("Admins", username))
+                        #os.removedirs(os.path.join("Admins", username))
                     # Remove the user from the pickle file by overwriting it with an updated list
                     new_userlist = []
                     for user in userlist:
