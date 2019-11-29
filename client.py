@@ -37,7 +37,7 @@ class Client:
         assert isinstance(writer, asyncio.streams.StreamWriter), \
             "Asyncio StreamWriter on server is not working"
 
-        print("\n Register or Login to access the server")
+        print("\n Use commands register or login to access the server")
 
         while True:
             command = input('\nClient waiting\n')
@@ -45,6 +45,8 @@ class Client:
             command = command.strip()
             # Split commands on spaces to handle separate words, e.g. read_file filename
             split_command = command.split()
+            if len(split_command) == 0:
+                continue
             # Append the command to command history
             self.command_list.append(command)
 
