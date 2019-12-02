@@ -36,15 +36,15 @@ class User:
         If the User request read file services with filename,
         this function will read data from the user specified file.
         At first time call, it will read first 100 characters and
-        each subsequent calls from same user it will read next 100 characters. 
+        each subsequent calls from same user it will read next 100 characters.
 
     write_notext :
         If the User request write file functionality without input data. It will
         erase the content of the filename that user specified in request.
 
     write_file :
-        If the User request write function with filename and input data.It 
-        will create new text file and updated with input data.If the User 
+        If the User request write function with filename and input data. It
+        will create new text file and updated with input data. If the User
         calls this function second time with same filename and new input data.
         It will updated new input data in existing file not created new file.
 
@@ -78,7 +78,7 @@ class User:
         """ This function will close the file that the user already logged
         in and read some content of file and then user request this service
         with out filename. Before closing the file it will reset the index
-        value to zero then only it will start read from the beginning when 
+        value to zero then only it will start read from the beginning when
         next time this function calls.
 
         Parameters :
@@ -101,7 +101,7 @@ class User:
          current working directory.If the user request the service with
          file name at first time. It will start read first 100 characters
          and then second time call it will read next 100 characters and so on.
-            
+
         Incase if the user already open one read file and later request
         service such as read another file then the file opened earlier
         will close and read data from new file.
@@ -157,11 +157,11 @@ class User:
             Parameters:
             ===========
             filename - name of the file that user specified.
-                    
+
             Return:
             =======
             String which display message such that file is erased.
-        
+
         """
         # Move to the user's current location
         os.chdir(self.current_path)
@@ -183,7 +183,7 @@ class User:
             If the User request this service to that file already exists,
             then whatever data given in the input it will append to that file.
             If we have any space inbetween character string it will take that
-            character as it is. As we have split commands in the server,if 
+            character as it is. As we have split commands in the server,if
             there is space it will split separately to that input data and
             pass text arguments as list to this function.This is the reason
             for using join command here to combine that user defined
@@ -192,11 +192,11 @@ class User:
             Parameters:
             ===========
             filename - name of the file that user specified.
-                    
+
             Return:
             =======
-            String which display message such that file is either created or updated.           
-        
+            String which display message such that file is either created or updated.
+
          """
         # Move to the user's current location
         os.chdir(self.current_path)
@@ -226,17 +226,17 @@ class User:
 
     def create_dir(self, folder_name):
         """This function is used to create a new folder in the
-            current working directory.If the folder already 
+            current working directory.If the folder already
             exists then it will show FileExistsError.
 
             Parameters:
             ===========
             folder_name - name of the folder that user specified.
-                    
+
             Return:
             =======
-            String which display message such that folder is created.         
-            
+            String which display message such that folder is created.
+
             """
         try:
             os.chdir(self.current_path)
@@ -260,13 +260,13 @@ class User:
             Parameters:
             ===========
             dir_name - name of the folder that user specified to move.
-                    
+
             Return:
             =======
-            String which display message such that folder is created.         
-            
-            """       
-               
+            String which display message such that folder is created.
+
+            """
+
         print("Current Working Directory ", os.getcwd())
         try:
             if dir_name == '..':
@@ -306,7 +306,7 @@ class User:
             ===========
             list_of_files - list the files and folders in the
                             current working directory.
-                    
+
             Return:
             =======
             String which display all files and folders in that
@@ -365,6 +365,7 @@ class Admin(User):
                 also updated pickle file.
 
     """
+
     def delete(self, username, password, root_path):
         """ Delete the user conforming currently logged in Admin's password.
             Parameters:
@@ -377,7 +378,7 @@ class Admin(User):
 
                 privileges : string
                 privileges must be either user or admin.
-                    
+
             Return:
             =======
                 String which display either user deleted or error message.
@@ -395,10 +396,10 @@ class Admin(User):
                     # Remove the user's home directory
                     try:
                         shutil.rmtree(os.path.join("Users", username))
-                        
+
                     except FileNotFoundError:
                         shutil.rmtree(os.path.join("Admins", username))
-                        
+
                     # Remove the user from the pickle file by overwriting it with an updated list
                     new_userlist = []
                     for user in userlist:
