@@ -16,7 +16,26 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 
 class Server:
-    """Class for Server objects to be connected to by"""
+    """Class for Server objects to be connected to by
+
+    Attributes:
+    self.absolute_path : string
+        it returns the value of the string "root"
+    self.logged_in : dictionary
+        dictionary of logged in users if empty when server starts
+
+    Function:
+    register
+        register a user using a <username>, <password> and <previllage>
+        and a new personal folder named <username> created on the server   
+    login
+        login a user conforming with a <username> and <password> 
+        and moves to their root directory
+    handle_commands:
+        handles different commands the server has been recieved from 
+        the client and sends the response back to the client.
+    """
+    
 
     def __init__(self):
         # find the absolute path
@@ -40,7 +59,28 @@ class Server:
         self.logged_in = {}
 
     def register(self, username, password, privileges):
-        """Register a new user and create a corresponding object of class User or class Admin"""
+        """
+        Parameters:
+            username : string
+                returns the value of the string "username"
+            password : string
+                returns the value of the string "password"
+            privileges : string
+                returns the value of the string "privileges"
+        
+        Return: None
+
+        Register a new user to the server with a <username>, <password>
+            and <previllages> 
+        previllages have to be either admin or user
+        
+        user can be registered only with a unique name
+        if a user has been registered with the same name before,
+            it will acknowledge the current user with a proper error message.
+        
+        when the registration is done, A new personal folder named <username> 
+        is going to be created on the root directory.
+        """
         # The server should be at root to read reg.pickle
         os.chdir(self.absolute_path)
 
@@ -80,7 +120,32 @@ class Server:
         return "Username already exists"
 
     def login(self, username, password, ip_tcp):
-        """Log in the user, and move them to their home folder"""
+        """
+        Parameters:
+            username : string
+                returns the value of the string "username"
+            password : string
+                returns the value of the string "password"
+            ip_tcp : tuple
+                returns the ip address and the tcp port
+
+        Return: None
+
+        login a user to the server by cross checking the <username> and <password>
+        if the username or password is not correct, gives a proper error message
+        
+        user cant loged_in twice.
+        if a user tries to login twice, gives a proper error message
+        
+        two users cant loged_in on the same port
+        if another user tries to login with the same port while one
+            user is already logged in, gives a proper error message
+        
+        multiple users can login with different port at the same time
+        
+        After login successfully user moved to the home directory
+
+        """
         # Server must be in root to access the pickle file
         os.chdir(self.absolute_path)
         with open('reg.pickle', 'rb') as userlist_file:
@@ -130,7 +195,45 @@ class Server:
         return result
 
     async def handle_commands(self, reader, writer):
-        """The main server function, with main loop."""
+        """The main server function, with main loop.
+
+        Parameters:
+            reader : streamreader
+                reads the data sent from the client
+            writer : Streamwriter
+                write the data thats sent to the client
+        
+        Return: None
+                
+        for the following functions: list, change_folder, read_file, 
+        write_file, create_folder, and delete; we need a user to be 
+        already logged_in, in order to operate.
+
+        First it will check if a user has been already logged in with a try statment.
+        If a user has been already logged in, and the commands are as of the above 
+        listed commands, the block in the try statment is going to be checked.
+        if the message is list then first user.list_function is called and call the encode 
+        function in the user.list_function and provides the arguments in writer.write.
+        The commands, change_folder, read_file, write_file, create_folder
+        and delete works the same way as the list one. 
+
+        An exception has been raised for the commands; change_folder, read_file, 
+        write_file, create_folder and delete, if the command is not written on the
+        correct format, with proper error message. Furthermore, for the delete command, 
+        if the logged_in user is not an admin, it will give a proper error message.
+        
+        If a user is not logged in and tries to do one of the above commands, an exception
+        will be raised with a proper error message.        
+
+        The Quit command uses to logout the user if the user has been already 
+        logged in and close the connection on the client. if a user uses quit
+        command before logged in yet, it will just quit and close the connection
+        on the client.
+        
+        If a different command other than the listed commands, which are list, 
+        change_folder, read_file, write_file, create_folder, register, login 
+        and delete; a request is going to be denied with a proper error message.
+        """
 
         assert isinstance(reader, asyncio.streams.StreamReader), \
             "Asyncio StreamReader on server is not working"
